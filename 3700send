@@ -6,23 +6,27 @@ import sys
 print 'Number of arguments:', len(sys.argv), 'arguments.'
 print 'Argument List:', str(sys.argv)
 
-
+var errorMessage = "this should print to STDERR"
 
 # To aid in grading and debugging, your sending program should print out messages to the console:
 # When a sender sends a packet (including retransmission), it should print the following to STDERR:
 # <timestamp> [send data] start (length)
-
 # where timestamp is a timestamp (down to the microsecond), start is the beginning offset of the data sent in the
 # packet, and length is the amount of the data sent in that packet. When your 3700send receives an acknowledgement,
 # you should also print to STDERR
-# <timestamp> [recv ack] end
-# where end is the last offset that was acknowledged. You may also print some messages of your own to indicate
+# <timestamp> [recv ack] end where end is the last offset that was acknowledged.
+# You may also print some messages of your own to indicate
 # timeouts, etc, depending on your design, but make it concise and readable; a function mylog(char *fmt, ...) is
 # provided for this purpose.
 # The command line syntax for your receiving program is given below. The receiving program will start up and will bind
 # to a random local port; once bound, it will print out the following to STDERR:
+def printError():
+    print >> sys.stderr, errorMessage
+
 
 """
+
+
 The syntax for launching your receiving program is therefore:
 ./3700recv
 To aid in grading and debugging, your receiving program should print out messages to STDERR:
