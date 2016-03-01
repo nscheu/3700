@@ -26,24 +26,28 @@ dest = (UDP_IP, UDP_PORT)
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
 sock.settimeout(TIMEOUT)
 
+
 def log(string):
   sys.stderr.write(datetime.datetime.now().strftime("%H:%M:%S.%f") + " " + string + "\n")
 
+
 def send_next_packet():
-  global SEQUENCE
 
-  data = sys.stdin.read(DATA_SIZE)
-  if (len(data) > 0):
-    msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False})
-    SEQUENCE += len(data)
+    global SEQUENCE
 
-    if sock.sendto(msg, dest) < len(msg):
-      log("[error] unable to fully send packet")
+    data = sys.stdin.read(DATA_SIZE)
+    if (len(data) > 0):
+        msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False})
+        SEQUENCE += len(data)
+
+        if sock.sendto(msg, dest) < len(msg):
+            log("[error] unable to fully send packet")
+        else:
+            print str(datetime.datetime.now()) + ' [send data] start ' + str(len(msg))
+            log("[send data] " + str(SEQUENCE) + " (" + str(len(data)) + ")")
+        return True
     else:
-      log("[send data] " + str(SEQUENCE) + " (" + str(len(data)) + ")")
-    return True
-  else:
-    return False
+        return False
 
 # Send first packet
 send_next_packet()
