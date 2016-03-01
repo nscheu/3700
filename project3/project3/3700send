@@ -10,6 +10,7 @@ import time
 import datetime
 import select
 import json
+from packet import Packet
 
 MSG_SIZE = 1500 #1460 total for "Our stuff"
 DATA_SIZE = 1000
@@ -36,11 +37,17 @@ def send_next_packet():
   global SEQUENCE
 
   data = sys.stdin.read(DATA_SIZE)
+
   if (len(data) > 0):
-    msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False})
+
+    packet_in = Packet(SEQUENCE, data)
+
+    msg = packet_in.package()
+    #msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False, ..., ..., ...})
     SEQUENCE += len(data)
 
     if sock.sendto(msg, dest) < len(msg):
+    # TODO: must make sure that the packet is filled
       log("[error] unable to fully send packet")
     else:
       log("[send data] " + str(SEQUENCE) + " (" + str(len(data)) + ")")
