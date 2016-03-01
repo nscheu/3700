@@ -11,7 +11,7 @@ import datetime
 import select
 import json
 
-MSG_SIZE = 1500
+MSG_SIZE = 1500 #1460 total for "Our stuff"
 DATA_SIZE = 1000
 TIMEOUT = 30
 SEQUENCE = 0
@@ -43,8 +43,6 @@ def send_next_packet():
     if sock.sendto(msg, dest) < len(msg):
       log("[error] unable to fully send packet")
     else:
-      sys.stderr.write(str(datetime.datetime.now()) + ' [send data] start ' + str(len(msg)))
-
       log("[send data] " + str(SEQUENCE) + " (" + str(len(data)) + ")")
     return True
   else:
