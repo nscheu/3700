@@ -33,21 +33,20 @@ def log(string):
 
 def send_next_packet():
 
-    global SEQUENCE
+  global SEQUENCE
 
-    data = sys.stdin.read(DATA_SIZE)
-    if (len(data) > 0):
-        msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False})
-        SEQUENCE += len(data)
+  data = sys.stdin.read(DATA_SIZE)
+  if (len(data) > 0):
+    msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False})
+    SEQUENCE += len(data)
 
-        if sock.sendto(msg, dest) < len(msg):
-            log("[error] unable to fully send packet")
-        else:
-            print str(datetime.datetime.now()) + ' [send data] start ' + str(len(msg))
-            log("[send data] " + str(SEQUENCE) + " (" + str(len(data)) + ")")
-        return True
+    if sock.sendto(msg, dest) < len(msg):
+      log("[error] unable to fully send packet")
     else:
-        return False
+      log("[send data] " + str(SEQUENCE) + " (" + str(len(data)) + ")")
+    return True
+  else:
+    return False
 
 # Send first packet
 send_next_packet()
