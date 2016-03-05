@@ -81,6 +81,7 @@ while True:
       # If there is an ack, send next packet
       if decoded['ack'] == SEQUENCE:
         log("[recv ack] " + str(SEQUENCE))
+        SEND_BUFFER.remove_top()
 
         # Try to send next packet; break if no more data
         # check to see that the buffer has space to add a message
