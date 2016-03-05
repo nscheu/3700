@@ -10,8 +10,6 @@ import time
 import datetime
 import select
 import json
-from packet import Packet, create_package_from_json
-
 
 def log(string):
   sys.stderr.write(datetime.datetime.now().strftime("%H:%M:%S.%f") + " " + string + "\n")
@@ -35,34 +33,26 @@ log("[bound] " + str(UDP_PORT))
 # Now listen for packets
 while True:
   result = sock.recvfrom(MSG_SIZE)
-  print "RECEIVED " + str(result)
 
   # If nothing is ready, we hit the timeout
   if result:
     (data, addr) = result
 
     try:
-
       decoded = json.loads(data)
-      #package_in = create_package_from_json(decoded)
 
       # If the EOF flag is set, exit
-      #if package_in.eof:
-      if decoded["eof"]:
+      if (decoded['eof']):
         log("[completed]")
         sys.exit(0)
 
       # If there is data, we accept it and print it out
-      #if package_in.data:
-      if decoded["data"]:
+      if (decoded['data']):
         # If we receive data, we assume it's in-order
         # You will need to do much more here
-        #log("[recv data] " + str(package_in.sequence_number) + " (" + str(len(package_in.data)) + ") ACCEPTED (in-order)")
-        log("[recv data] " + str(decoded["sequence"]) + " (" + str(len(decoded["data"])) + ") ACCEPTED (in-order)")
-        #sys.stdout.write(package_in.data)
-        sys.stdout.write(decoded["data"])
+        log("[recv data] " + str(decoded['sequence']) + " (" + str(len(decoded['data'])) + ") ACCEPTED (in-order)")
+        sys.stdout.write(decoded['data'])
 
-      # TODO, create new packet that is an ACK
       # Send back an ack to the sender
       msg = json.dumps({"ack": decoded['sequence'] + len(decoded['data'])})
       log("ABOUT TO SEND " + msg)
