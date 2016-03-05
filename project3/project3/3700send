@@ -87,7 +87,7 @@ while True:
     add_to_log("(SEND) free slots exist ")
     log("ABOUT TO SLEEP")
     result = sock.recvfrom(MSG_SIZE)
-    add_to_log("(SEND) result =  " + str(result))
+    add_to_log("(SEND) result =  ")
 
 
   if result:
