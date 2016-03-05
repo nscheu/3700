@@ -89,6 +89,8 @@ while True:
     ready = select.select([sock], [], [], .5)
     result = None
     if ready:
+      add_to_log("(SEND) ready to receive")
+
       result = sock.recvfrom(MSG_SIZE)
       add_to_log("(SEND) result =  ")
 
@@ -104,6 +106,8 @@ while True:
         if decoded['ack'] == SEQUENCE:
           SEND_TIME = time.time()
           log("[recv ack] " + str(SEQUENCE))
+          add_to_log("(SEND) received ack" + str(SEQUENCE))
+
           SEND_BUFFER.remove_top()
 
           # Try to send next packet; break if no more data
@@ -119,6 +123,8 @@ while True:
 
   except socket.timeout:
     send_next_packet()
+    add_to_log("(SEND) resending packet")
+
   finally:
     add_to_log("(SEND) ALL FAILED")
 
