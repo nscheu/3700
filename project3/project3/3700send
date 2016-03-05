@@ -37,13 +37,14 @@ def send_next_packet():
   global SEQUENCE
 
   data = sys.stdin.read(DATA_SIZE)
+  print "READ IN: " + str(data)
 
   if (len(data) > 0):
 
     packet_in = Packet(SEQUENCE, data)
 
-    msg = packet_in.package()
-    #msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False, ..., ..., ...})
+    #msg = packet_in.package()
+    msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False})
     SEQUENCE += len(data)
 
     if sock.sendto(msg, dest) < len(msg):
