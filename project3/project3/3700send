@@ -86,10 +86,12 @@ while True:
   add_to_log("(SEND) free slots exist ")
   log("ABOUT TO SLEEP")
   try:
-    #result = sock.recvfrom(MSG_SIZE)
-    result = sock.recv(MSG_SIZE)
+    ready = select.select([sock], [], [], TIMEOUT)
+    result = None
+    if ready:
+      result = sock.recvfrom(MSG_SIZE)
 
-    add_to_log("(SEND) result =  ")
+      add_to_log("(SEND) result =  ")
 
 
     if result:
