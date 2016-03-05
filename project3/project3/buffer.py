@@ -26,6 +26,9 @@ class Buffer:
     def free_slots(self):
         """
         Checks how many free slots are in the buffer
-        :return: Int
+        :return: Boolean - True if there are open slots, else False
         """
-        return self.size - len(self.packets)
+        if self.size - len(self.packets) > 0:
+            return True
+        else:
+            return False

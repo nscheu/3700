@@ -33,12 +33,14 @@ def log(string):
   sys.stderr.write(datetime.datetime.now().strftime("%H:%M:%S.%f") + " " + string + "\n")
 
 def send_next_packet():
-  add_to_log("send_next_packet called ")
+  add_to_log("(SEND) send_next_packet called ")
 
 
   global SEQUENCE
 
   data = sys.stdin.read(DATA_SIZE)
+  add_to_log("(SEND) read in message from stdin: " + str(data))
+
   if (len(data) > 0):
     msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False})
 
@@ -50,10 +52,15 @@ def send_next_packet():
 
     if sock.sendto(msg, dest) < len(msg):
       log("[error] unable to fully send packet")
+      add_to_log("(SEND) Unable to fully send packet")
     else:
       log("[send data] " + str(SEQUENCE) + " (" + str(len(data)) + ")")
+      add_to_log("(SEND) sent with sequence: " + str(SEQUENCE))
+
     return True
   else:
+    add_to_log("(SEND) empty message from stdin")
+
     return False
 
 # Send first packet
@@ -65,7 +72,7 @@ while True:
   result = sock.recvfrom(MSG_SIZE)
 
   if result:
-    add_to_log("message_from_stdin received ")
+    add_to_log("(SEND) message_from_stdin received ")
 
     (data, addr) = result
     try:
@@ -78,13 +85,14 @@ while True:
         # Try to send next packet; break if no more data
         # check to see that the buffer has space to add a message
         if SEND_BUFFER.free_slots:
-          add_to_log("free slots exist ")
+          add_to_log("(SEND) free slots exist ")
           if (not send_next_packet()):
             break
     except (ValueError, KeyError, TypeError):
       log("[recv corrupt packet]")
   else:
     log("[error] timeout")
+    add_to_log("(SEND) Exiting run")
     sys.exit(-1)
 
 sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE, "ack": False}), dest)

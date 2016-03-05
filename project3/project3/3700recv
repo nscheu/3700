@@ -10,6 +10,8 @@ import time
 import datetime
 import select
 import json
+from create_log_file import add_to_log
+
 
 def log(string):
   sys.stderr.write(datetime.datetime.now().strftime("%H:%M:%S.%f") + " " + string + "\n")
@@ -42,6 +44,9 @@ while True:
     try:
       decoded = json.loads(data)
 
+      add_to_log("(RECV) received message: " + str(decoded))
+
+
       # If the EOF flag is set, exit
       if (decoded['eof']):
         log("[completed]")
@@ -59,6 +64,9 @@ while True:
       log("ABOUT TO SEND " + msg)
       if sock.sendto(msg, addr) < len(msg):
         log("[error] unable to fully send packet")
+      else:
+        add_to_log("(RECV) sending ack: " + str(msg))
+
 
     except (ValueError, KeyError, TypeError) as e:
       log("[recv corrupt packet]")
