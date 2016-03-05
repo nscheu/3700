@@ -88,33 +88,34 @@ while True:
   try:
     result = sock.recvfrom(MSG_SIZE)
     add_to_log("(SEND) result =  ")
+
+
+    if result:
+      add_to_log("(SEND) message_from_socket received ")
+
+      (data, addr) = result
+      try:
+        decoded = json.loads(data)
+
+        # If there is an ack, send next packet
+        if decoded['ack'] == SEQUENCE:
+          SEND_TIME = time.time()
+          log("[recv ack] " + str(SEQUENCE))
+          SEND_BUFFER.remove_top()
+
+          # Try to send next packet; break if no more data
+          # check to see that the buffer has space to add a message
+          if (not send_next_packet()):
+            break
+      except (ValueError, KeyError, TypeError):
+        log("[recv corrupt packet]")
+    else:
+      log("[error] timeout")
+      add_to_log("(SEND) Exiting run")
+      sys.exit(-1)
+
   except socket.timeout:
     send_next_packet()
-
-
-  if result:
-    add_to_log("(SEND) message_from_socket received ")
-
-    (data, addr) = result
-    try:
-      decoded = json.loads(data)
-
-      # If there is an ack, send next packet
-      if decoded['ack'] == SEQUENCE:
-        SEND_TIME = time.time()
-        log("[recv ack] " + str(SEQUENCE))
-        SEND_BUFFER.remove_top()
-
-        # Try to send next packet; break if no more data
-        # check to see that the buffer has space to add a message
-        if (not send_next_packet()):
-          break
-    except (ValueError, KeyError, TypeError):
-      log("[recv corrupt packet]")
-  else:
-    log("[error] timeout")
-    add_to_log("(SEND) Exiting run")
-    sys.exit(-1)
 
 sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE, "ack": False}), dest)
 add_to_log("(SEND) eof ")
