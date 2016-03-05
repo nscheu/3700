@@ -18,7 +18,7 @@ class Packet:
         self.eof = eof
 
     def package(self):
-        return json.loads('{"id": ' + str(self.id) +
+        return json.dumps('{"id": ' + str(self.id) +
                           ', "sequence": ' + str(self.sequence_number) +
                           ', "data": ' + str(self.data) +
                           ', "ack" :' + str(self.ack) +
