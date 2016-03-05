@@ -7,8 +7,25 @@ class Buffer:
         self.packets = []
 
     def add(self, packet):
-        if len(self.packets) < self.size:
-            self.packets.append(packet)
-            return True
-        else:
-            return False
+        self.packets.append(packet)
+
+    def get_top(self):
+        """
+        Gets the first packet from the buffer
+        :return:
+        """
+        return self.packets[0]
+
+    def remove_top(self):
+        """
+        Removes the first packet from the buffer
+        :return:
+        """
+        self.packets.pop(0)
+
+    def free_slots(self):
+        """
+        Checks how many free slots are in the buffer
+        :return: Int
+        """
+        return self.size - len(self.packets)

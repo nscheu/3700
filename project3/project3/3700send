@@ -10,11 +10,13 @@ import time
 import datetime
 import select
 import json
+from buffer import Buffer
 
 MSG_SIZE = 1500
 DATA_SIZE = 1000
 TIMEOUT = 30
 SEQUENCE = 0
+SEND_BUFFER = Buffer()
 
 # Bind to localhost and an ephemeral port
 IP_PORT = sys.argv[1]
@@ -35,6 +37,11 @@ def send_next_packet():
   data = sys.stdin.read(DATA_SIZE)
   if (len(data) > 0):
     msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False})
+
+    # store into buffer
+    SEND_BUFFER.add(msg)
+    msg = SEND_BUFFER.get_top()
+
     SEQUENCE += len(data)
 
     if sock.sendto(msg, dest) < len(msg):
@@ -63,8 +70,10 @@ while True:
         log("[recv ack] " + str(SEQUENCE))
 
         # Try to send next packet; break if no more data
-        if (not send_next_packet()):
-          break
+        # check to see that the buffer has space to add a message
+        if SEND_BUFFER.free_slots > 0:
+          if (not send_next_packet()):
+            break
     except (ValueError, KeyError, TypeError):
       log("[recv corrupt packet]")
   else:
