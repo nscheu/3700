@@ -87,10 +87,10 @@ while True:
 
           if sock.sendto(msg, addr) < len(msg):
             log("[error] unable to fully send packet")
-            add_to_log("(RECV) unable to fully send ack: " + str(msg) + " of length " + len(msg))
+            add_to_log("(RECV) unable to fully send ack: " + str(msg) + " of length ")
 
           else:
-            add_to_log("(RECV) sending ack: " + str(msg) + " of length " + len(msg))
+            add_to_log("(RECV) sending ack: " + str(msg) + " of length ")
         else:
           add_to_log("(RECV) NO FREE SLOTS")
 
