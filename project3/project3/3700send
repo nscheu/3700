@@ -44,6 +44,8 @@ def send_next_packet():
   global SEND_TIME
   global SEND_BUFFER
 
+  #if SEND_BUFFER.free_slots:
+
   data = sys.stdin.read(DATA_SIZE)
   add_to_log("(SEND) read in message from stdin: " + str(data))
 
@@ -81,13 +83,10 @@ while True:
   if int(round((time.time() - SEND_TIME))) > 1:
     send_next_packet()
 
-  result = None
-
-  if SEND_BUFFER.free_slots:
-    add_to_log("(SEND) free slots exist ")
-    log("ABOUT TO SLEEP")
-    result = sock.recvfrom(MSG_SIZE)
-    add_to_log("(SEND) result =  ")
+  add_to_log("(SEND) free slots exist ")
+  log("ABOUT TO SLEEP")
+  result = sock.recvfrom(MSG_SIZE)
+  add_to_log("(SEND) result =  ")
 
 
   if result:
