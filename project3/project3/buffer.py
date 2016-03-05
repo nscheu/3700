@@ -2,8 +2,8 @@
 
 class Buffer:
 
-    def __init__(self, size=1):
-        self.size = size
+    def __init__(self):
+        self.size = 1
         self.packets = []
 
     def add(self, packet):
