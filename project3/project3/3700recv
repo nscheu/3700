@@ -15,7 +15,8 @@ def log(string):
   sys.stderr.write(datetime.datetime.now().strftime("%H:%M:%S.%f") + " " + string + "\n")
 
 MSG_SIZE = 1500
-TIMEOUT = 30
+#TIMEOUT = 30
+TIMEOUT = 600
 
 # Bind to localhost and an ephemeral port
 UDP_IP = "127.0.0.1"

@@ -11,6 +11,7 @@ import datetime
 import select
 import json
 from buffer import Buffer
+from create_log_file import add_to_log
 
 MSG_SIZE = 1500
 DATA_SIZE = 1000
@@ -32,6 +33,9 @@ def log(string):
   sys.stderr.write(datetime.datetime.now().strftime("%H:%M:%S.%f") + " " + string + "\n")
 
 def send_next_packet():
+  add_to_log("send_next_packet called ")
+
+
   global SEQUENCE
 
   data = sys.stdin.read(DATA_SIZE)
@@ -61,6 +65,8 @@ while True:
   result = sock.recvfrom(MSG_SIZE)
 
   if result:
+    add_to_log("message_from_stdin received ")
+
     (data, addr) = result
     try:
       decoded = json.loads(data)
@@ -71,7 +77,8 @@ while True:
 
         # Try to send next packet; break if no more data
         # check to see that the buffer has space to add a message
-        if SEND_BUFFER.free_slots > 0:
+        if SEND_BUFFER.free_slots:
+          add_to_log("free slots exist ")
           if (not send_next_packet()):
             break
     except (ValueError, KeyError, TypeError):
