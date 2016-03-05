@@ -80,13 +80,13 @@ send_next_packet()
 while True:
 
   # check timeout
-  #if int(round((time.time() - SEND_TIME) * 1000)) > 500:
-  #  send_next_packet()
+  if int(round((time.time() - SEND_TIME) * 1000)) > 500:
+      send_next_packet()
 
   add_to_log("(SEND) free slots exist ")
   log("ABOUT TO SLEEP")
   try:
-    ready = select.select([sock], [], [], .5)
+    ready = select.select([sock], [], [], .01)
     result = None
     if ready:
       add_to_log("(SEND) ready to receive")
