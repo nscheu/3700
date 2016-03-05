@@ -8,6 +8,7 @@ import sys
 import socket
 import time
 import datetime
+import time
 import select
 import json
 from buffer import Buffer
@@ -18,7 +19,7 @@ DATA_SIZE = 1000
 TIMEOUT = 30
 SEQUENCE = 0
 SEND_BUFFER = Buffer()
-SEND_TIME = datetime.datetime.now()
+SEND_TIME = time.time()
 
 
 # Bind to localhost and an ephemeral port
@@ -58,7 +59,7 @@ def send_next_packet():
     if sock.sendto(msg, dest) < len(msg):
       log("[error] unable to fully send packet")
       add_to_log("(SEND) Unable to fully send packet")
-      SEND_TIME = datetime.datetime.now()
+      SEND_TIME = time.time()
 
     else:
       log("[send data] " + str(SEQUENCE) + " (" + str(len(data)) + ")")
@@ -77,7 +78,7 @@ send_next_packet()
 while True:
 
   # check timeout
-  if int(datetime.datetime.now() - SEND_TIME) > 5:
+  if int(round((time.time() - SEND_TIME))) > 1:
     send_next_packet()
 
   result = None
@@ -96,7 +97,7 @@ while True:
 
       # If there is an ack, send next packet
       if decoded['ack'] == SEQUENCE:
-        SEND_TIME = datetime.datetime.now()
+        SEND_TIME = time.time()
         log("[recv ack] " + str(SEQUENCE))
         SEND_BUFFER.remove_top()
 
