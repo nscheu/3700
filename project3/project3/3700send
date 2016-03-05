@@ -116,6 +116,9 @@ while True:
 
   except socket.timeout:
     send_next_packet()
+  finally:
+    add_to_log("(SEND) ALL FAILED")
+
 
 sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE, "ack": False}), dest)
 add_to_log("(SEND) eof ")
