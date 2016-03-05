@@ -77,6 +77,9 @@ while True:
             log("[error] unable to fully send packet")
           else:
             add_to_log("(RECV) sending ack: " + str(msg))
+        else:
+          add_to_log("(RECV) NO FREE SLOTS")
+
 
 
       except (ValueError, KeyError, TypeError) as e:
