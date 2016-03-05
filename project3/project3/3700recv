@@ -47,18 +47,20 @@ while True:
       try:
         decoded = json.loads(data)
 
+        # If the EOF flag is set, exit
+        if (decoded['eof']):
+            log("[completed]")
+            sys.exit(0)
+
         if RECV_BUFFER.free_slots() or decoded['sequence'] != RECV_BUFFER.get_top()['sequence']:
 
 
           RECV_BUFFER.add(decoded)
-  
+
           add_to_log("(RECV) received message: " + str(decoded))
 
 
-          # If the EOF flag is set, exit
-          if (decoded['eof']):
-            log("[completed]")
-            sys.exit(0)
+
 
           # If there is data, we accept it and print it out
           if (decoded['data']):
