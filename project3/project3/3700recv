@@ -40,8 +40,16 @@ log("[bound] " + str(UDP_PORT))
 while True:
   result = sock.recvfrom(MSG_SIZE)
 
+  add_to_log("(RECV) received from socket: " + str(result))
+
+
+
+
   # If nothing is ready, we hit the timeout
   if result:
+
+      add_to_log("(RECV) result exists: ")
+
       (data, addr) = result
 
       try:
