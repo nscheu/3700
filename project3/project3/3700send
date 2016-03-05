@@ -85,8 +85,11 @@ while True:
 
   add_to_log("(SEND) free slots exist ")
   log("ABOUT TO SLEEP")
-  result = sock.recvfrom(MSG_SIZE)
-  add_to_log("(SEND) result =  ")
+  try:
+    result = sock.recvfrom(MSG_SIZE)
+    add_to_log("(SEND) result =  ")
+  except socket.timeout:
+    send_next_packet()
 
 
   if result:
