@@ -80,7 +80,7 @@ send_next_packet()
 while True:
 
   # check timeout
-  if int(round((time.time() - SEND_TIME) * 1000)) > 1000:
+  if int(round((time.time() - SEND_TIME) * 1000)) > 1500:
     send_next_packet()
 
   add_to_log("(SEND) free slots exist ")
