@@ -18,7 +18,7 @@ from buffer import Buffer
 def log(string):
   sys.stderr.write(datetime.datetime.now().strftime("%H:%M:%S.%f") + " " + string + "\n")
 
-MSG_SIZE = 1500
+MSG_SIZE = 100
 TIMEOUT = 30
 RECV_BUFFER = Buffer()
 
@@ -38,6 +38,7 @@ log("[bound] " + str(UDP_PORT))
 
 # Now listen for packets
 while True:
+  add_to_log("(RECV) HELLO")
 
   #ready = select.select([sock], [], [], TIMEOUT)
   #result = None
