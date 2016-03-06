@@ -82,6 +82,7 @@ def send_message(msg):
     log("[error] unable to fully send packet")
     add_to_log("(SEND) Unable to fully send packet")
   else:
+    msg = json.loads(msg)
     log("[send data] " + str(msg['sequence']) + " (" + str(len(msg['data'])) + ")")
     add_to_log("(SEND) sent with sequence: " + str(msg['sequence']))
 
