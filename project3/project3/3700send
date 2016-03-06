@@ -124,7 +124,7 @@ def send_next_packet():
     if not len(SEND_BUFFER.packets):
       sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE, "ack": False}), dest)
       add_to_log("(SEND) eof ")
-      #sys.exit(0)
+      sys.exit(0)
     return False
 
 
