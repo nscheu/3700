@@ -142,10 +142,9 @@ while True:
     add_to_log("(SEND) free slots, send next packet")
 
 
-  else:
-    add_to_log("(SEND) no free slots, loop through ack buffer")
+  add_to_log("(SEND) no free slots, loop through ack buffer")
 
-    loop_through_ack_buffer()
+  loop_through_ack_buffer()
 
   try:
     result = sock.recvfrom(MSG_SIZE)
@@ -173,7 +172,7 @@ while True:
 
           else:
             add_to_log("(SEND) ACK arrived not in sequence: ")
-            ACK_BUFFER.insert_packet(decoded)
+            ACK_BUFFER.insert_ack_packet(decoded)
 
         except (ValueError, KeyError, TypeError):
           log("[recv corrupt packet]")

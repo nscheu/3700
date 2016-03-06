@@ -55,4 +55,17 @@ class Buffer:
                 i += 1
             return False
 
+    def insert_ack_packet(self, packet):
+        if not len(self.packets):
+            self.add(packet)
+            return True
+
+        else:
+            i = 0
+            for curr_pack in self.packets:
+                if curr_pack['ack'] > packet['ack']:
+                    self.packets = self.packets[:i] + [packet] + self.packets[i:]
+                    return True
+                i += 1
+            return False
 
