@@ -119,7 +119,10 @@ def send_next_packet():
     return True
   else:
     add_to_log("(SEND) empty message from stdin")
-
+    if not len(SEND_BUFFER.packets):
+      sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE, "ack": False}), dest)
+      add_to_log("(SEND) eof ")
+      sys.exit(0)
     return False
 
 
