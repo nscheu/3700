@@ -57,7 +57,7 @@ while True:
       try:
         decoded = json.loads(data)
 
-        if RECV_BUFFER.free_slots()
+        if RECV_BUFFER.free_slots():
 
           #if RECV_BUFFER.free_slots() and not RECV_BUFFER.sequence_in_buffer(decoded['sequence']):
           #if not RECV_BUFFER.sequence_in_buffer(decoded['sequence']):
