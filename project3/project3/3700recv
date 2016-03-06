@@ -21,7 +21,7 @@ def log(string):
 MSG_SIZE = 1500
 TIMEOUT = 10
 RECV_BUFFER = Buffer()
-SEQUENCE = 0
+SEQUENCE = -1
 
 
 # Bind to localhost and an ephemeral port
@@ -59,7 +59,7 @@ while True:
 
         #if RECV_BUFFER.free_slots() and not RECV_BUFFER.sequence_in_buffer(decoded['sequence']):
         #if not RECV_BUFFER.sequence_in_buffer(decoded['sequence']):
-        if decoded['sequence'] > RECV_BUFFER.get_top()['sequence']:
+        if decoded['sequence'] > SEQUENCE:
           #add to 'rest' of buffer
 
           #incoming_sequence = decoded["sequence"]
