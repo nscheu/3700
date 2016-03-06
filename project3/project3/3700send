@@ -150,13 +150,15 @@ while True:
     result = sock.recvfrom(MSG_SIZE)
 
     if result:
-        add_to_log("(SEND) message_from_socket received ")
+        add_to_log("(SEND) message from socket received ")
 
         (data, addr) = result
         try:
           decoded = json.loads(data)
 
           if decoded['ack'] and decoded['sequence'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
+            add_to_log("(SEND) ACK from socket received: " + str(decoded['sequence']))
+
             SEND_BUFFER.remove_top()
             add_to_log("(SEND) remove top")
 
@@ -165,6 +167,7 @@ while True:
 
 
           else:
+            add_to_log("(SEND) ACK arrived not in sequence: " + str(decoded['sequence']))
             ACK_BUFFER.insert_packet(decoded)
 
         except (ValueError, KeyError, TypeError):
