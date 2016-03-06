@@ -59,7 +59,7 @@ def loop_through_ack_buffer():
 
     while top_ack:
         sequence = SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data'])
-
+        add_to_log("(SEND) Looping on sequence SENDBUFF = " + str(sequence) + " ACKBUFF = " + str(top_ack['sequence']))
         if top_ack['sequence'] == sequence:
             ACK_BUFFER.remove_top()
             SEND_BUFFER.remove_top()
