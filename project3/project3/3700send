@@ -166,8 +166,9 @@ while True:
         sys.exit(-1)
 
     except socket.timeout:
-      send_top_packet()
-      add_to_log("(SEND) resending packet")
+      continue
+      #send_top_packet()
+      #add_to_log("(SEND) resending packet")
 
     finally:
       add_to_log("(SEND) ALL FAILED")
