@@ -72,7 +72,7 @@ def resend_timedout_packets():
     message_send_time = float(message['send_time'])
     if int(round((time.time() - message_send_time) * 1000)) > 500:
         message['send_time'] = time.time()
-        send_message(message)
+        send_message(json.dumps(message))
         add_to_log("(SEND) ACK Time'd out - send another packet ")
 
 
@@ -102,7 +102,7 @@ def send_next_packet():
     msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False, "send_time": time.time()})
 
     # store into buffer
-    SEND_BUFFER.add(msg)
+    SEND_BUFFER.add(json.loads(msg))
     #msg = SEND_BUFFER.get_top()
 
     SEQUENCE += len(data)
