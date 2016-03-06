@@ -56,34 +56,34 @@ def send_next_packet():
   global SEND_TIME
   global SEND_BUFFER
 
-  #if SEND_BUFFER.free_slots:
+  if SEND_BUFFER.free_slots:
 
-  data = sys.stdin.read(DATA_SIZE)
-  add_to_log("(SEND) read in message from stdin: " + str(data))
+    data = sys.stdin.read(DATA_SIZE)
+    add_to_log("(SEND) read in message from stdin: " + str(data))
 
-  if (len(data) > 0):
-    msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False})
+    if (len(data) > 0):
+      msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False})
 
-    # store into buffer
-    SEND_BUFFER.add(msg)
-    msg = SEND_BUFFER.get_top()
+      # store into buffer
+      SEND_BUFFER.add(msg)
+      msg = SEND_BUFFER.get_top()
 
-    SEQUENCE += len(data)
+      SEQUENCE += len(data)
 
-    if sock.sendto(msg, dest) < len(msg):
-      log("[error] unable to fully send packet")
-      add_to_log("(SEND) Unable to fully send packet")
-      SEND_TIME = time.time()
+      if sock.sendto(msg, dest) < len(msg):
+        log("[error] unable to fully send packet")
+        add_to_log("(SEND) Unable to fully send packet")
+        SEND_TIME = time.time()
 
+      else:
+        log("[send data] " + str(SEQUENCE) + " (" + str(len(data)) + ")")
+        add_to_log("(SEND) sent with sequence: " + str(SEQUENCE))
+
+      return True
     else:
-      log("[send data] " + str(SEQUENCE) + " (" + str(len(data)) + ")")
-      add_to_log("(SEND) sent with sequence: " + str(SEQUENCE))
+      add_to_log("(SEND) empty message from stdin")
 
-    return True
-  else:
-    add_to_log("(SEND) empty message from stdin")
-
-    return False
+      return False
 
 # Send first packet
 send_next_packet()
