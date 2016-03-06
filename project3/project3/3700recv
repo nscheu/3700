@@ -90,7 +90,7 @@ while True:
 
       try:
         decoded = json.loads(data)
-        add_to_log("(RECV) received message: " + str(decoded))
+        #add_to_log("(RECV) received message: " + str(decoded))
 
         #NEWW-----------------------------------------------------------------------------
         #TODO:

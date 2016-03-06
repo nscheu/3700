@@ -138,41 +138,49 @@ while True:
 
   if SEND_BUFFER.free_slots():
     send_next_packet()
+    add_to_log("(SEND) free slots, send next packet")
+
 
   else:
+    add_to_log("(SEND) no free slots, loop through ack buffer")
+
     loop_through_ack_buffer()
 
-    try:
-      result = sock.recvfrom(MSG_SIZE)
+  try:
+    result = sock.recvfrom(MSG_SIZE)
 
-      if result:
-          add_to_log("(SEND) message_from_socket received ")
+    if result:
+        add_to_log("(SEND) message_from_socket received ")
 
-          (data, addr) = result
-          try:
-            decoded = json.loads(data)
+        (data, addr) = result
+        try:
+          decoded = json.loads(data)
 
-            if decoded['ack'] and decoded['sequence'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
-              SEND_BUFFER.remove_top()
-              loop_through_ack_buffer()
+          if decoded['ack'] and decoded['sequence'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
+            SEND_BUFFER.remove_top()
+            add_to_log("(SEND) remove top")
 
-            else:
-              ACK_BUFFER.insert_packet(decoded)
+            loop_through_ack_buffer()
+            add_to_log("(SEND) Exiting run")
 
-          except (ValueError, KeyError, TypeError):
-            log("[recv corrupt packet]")
-      else:
-        log("[error] timeout")
-        add_to_log("(SEND) Exiting run")
-        sys.exit(-1)
 
-    except socket.timeout:
-      continue
-      #send_top_packet()
-      #add_to_log("(SEND) resending packet")
+          else:
+            ACK_BUFFER.insert_packet(decoded)
 
-    finally:
-      add_to_log("(SEND) ALL FAILED")
+        except (ValueError, KeyError, TypeError):
+          log("[recv corrupt packet]")
+    else:
+      log("[error] timeout")
+      add_to_log("(SEND) Exiting run")
+      sys.exit(-1)
+
+  except socket.timeout:
+    continue
+    #send_top_packet()
+    #add_to_log("(SEND) resending packet")
+
+  finally:
+    add_to_log("(SEND) ALL FAILED")
 
 sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE, "ack": False}), dest)
 add_to_log("(SEND) eof ")
