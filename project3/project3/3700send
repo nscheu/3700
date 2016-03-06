@@ -102,7 +102,7 @@ def send_next_packet():
     msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False, "send_time": time.time()})
 
     # store into buffer
-    SEND_BUFFER.add(json.loads(msg))
+    SEND_BUFFER.add(msg)
     #msg = SEND_BUFFER.get_top()
 
     SEQUENCE += len(data)
