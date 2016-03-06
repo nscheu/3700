@@ -58,51 +58,51 @@ while True:
         decoded = json.loads(data)
 
         #if RECV_BUFFER.free_slots():
-        top_saved_msg = RECV_BUFFER.get_top()
-        if not top_saved_msg or (top_saved_msg and top_saved_msg['sequence'] < decoded['sequence']):
+        #top_saved_msg = RECV_BUFFER.get_top()
+        #if not top_saved_msg or (top_saved_msg and top_saved_msg['sequence'] < decoded['sequence']):
 
-          #if RECV_BUFFER.free_slots() and not RECV_BUFFER.sequence_in_buffer(decoded['sequence']):
-          #if not RECV_BUFFER.sequence_in_buffer(decoded['sequence']):
-          #if decoded['sequence'] > SEQUENCE:
-          #add to 'rest' of buffer
+        #if RECV_BUFFER.free_slots() and not RECV_BUFFER.sequence_in_buffer(decoded['sequence']):
+        #if not RECV_BUFFER.sequence_in_buffer(decoded['sequence']):
+        #if decoded['sequence'] > SEQUENCE:
+        #add to 'rest' of buffer
 
-          #incoming_sequence = decoded["sequence"]
-
-
-
-          #if not len(RECV_BUFFER.packets) or RECV_BUFFER.get_top()["sequence"] != incoming_sequence:
-
-          RECV_BUFFER.add(decoded)
-
-          add_to_log("(RECV) received message: " + str(decoded))
+        #incoming_sequence = decoded["sequence"]
 
 
-          # If the EOF flag is set, exit
-          if (decoded['eof']):
-            log("[completed]")
-            sys.exit(0)
 
-          # If there is data, we accept it and print it out
-          if (decoded['data']):
-            # If we receive data, we assume it's in-order
-            # You will need to do much more here
-            log("[recv data] " + str(decoded['sequence']) + " (" + str(len(decoded['data'])) + ") ACCEPTED (in-order)")
-            sys.stdout.write(decoded['data'])
-            #RECV_BUFFER.remove_top()
-            #SEQUENCE = decoded['sequence'] + len(decoded['data'])
+        #if not len(RECV_BUFFER.packets) or RECV_BUFFER.get_top()["sequence"] != incoming_sequence:
 
-          # Send back an ack to the sender
-          msg = json.dumps({"ack": decoded['sequence'] + len(decoded['data'])})
-          log("ABOUT TO SEND " + msg)
+        RECV_BUFFER.add(decoded)
 
-          if sock.sendto(msg, addr) < len(msg):
-            log("[error] unable to fully send packet")
-            add_to_log("(RECV) unable to fully send ack: " + str(msg) + " of length " + str(len(msg)))
+        add_to_log("(RECV) received message: " + str(decoded))
 
-          else:
-            add_to_log("(RECV) sending ack: " + str(msg) + " of length " + str(len(msg)))
+
+        # If the EOF flag is set, exit
+        if (decoded['eof']):
+          log("[completed]")
+          sys.exit(0)
+
+        # If there is data, we accept it and print it out
+        if (decoded['data']):
+          # If we receive data, we assume it's in-order
+          # You will need to do much more here
+          log("[recv data] " + str(decoded['sequence']) + " (" + str(len(decoded['data'])) + ") ACCEPTED (in-order)")
+          sys.stdout.write(decoded['data'])
+          #RECV_BUFFER.remove_top()
+          #SEQUENCE = decoded['sequence'] + len(decoded['data'])
+
+        # Send back an ack to the sender
+        msg = json.dumps({"ack": decoded['sequence'] + len(decoded['data'])})
+        log("ABOUT TO SEND " + msg)
+
+        if sock.sendto(msg, addr) < len(msg):
+          log("[error] unable to fully send packet")
+          add_to_log("(RECV) unable to fully send ack: " + str(msg) + " of length " + str(len(msg)))
+
         else:
-          add_to_log("(RECV) NO FREE SLOTS")
+          add_to_log("(RECV) sending ack: " + str(msg) + " of length " + str(len(msg)))
+      #else:
+      #  add_to_log("(RECV) NO FREE SLOTS")
 
 
 
