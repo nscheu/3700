@@ -30,3 +30,10 @@ class Buffer:
         """
         return self.size - len(self.packets) > 0
 
+    def sequence_in_buffer(self, sequence_num):
+        result = False
+        for packet in self.packets:
+            if packet['sequence'] == sequence_num:
+                return True
+        return result
+
