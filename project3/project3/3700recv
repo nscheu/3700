@@ -21,6 +21,7 @@ def log(string):
 MSG_SIZE = 1500
 TIMEOUT = 10
 RECV_BUFFER = Buffer()
+SEQUENCE = 0
 
 
 # Bind to localhost and an ephemeral port
@@ -56,7 +57,7 @@ while True:
       try:
         decoded = json.loads(data)
 
-        if RECV_BUFFER.free_slots():
+        if RECV_BUFFER.free_slots() and decoded['sequence'] > SEQUENCE:
           #if decoded['sequence'] > RECV_BUFFER.get_top()['sequence']:
           #add to 'rest' of buffer
 
@@ -83,6 +84,7 @@ while True:
             log("[recv data] " + str(decoded['sequence']) + " (" + str(len(decoded['data'])) + ") ACCEPTED (in-order)")
             sys.stdout.write(decoded['data'])
             RECV_BUFFER.remove_top()
+            SEQUENCE = decoded['sequence']
 
           # Send back an ack to the sender
           msg = json.dumps({"ack": decoded['sequence'] + len(decoded['data'])})
