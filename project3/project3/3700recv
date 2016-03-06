@@ -57,7 +57,7 @@ while True:
       try:
         decoded = json.loads(data)
 
-        if RECV_BUFFER.free_slots() and decoded['sequence'] > SEQUENCE:
+        if RECV_BUFFER.free_slots() and decoded['sequence'] == SEQUENCE:
           #if decoded['sequence'] > RECV_BUFFER.get_top()['sequence']:
           #add to 'rest' of buffer
 
