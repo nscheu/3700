@@ -35,6 +35,18 @@ sock.settimeout(TIMEOUT)
 def log(string):
   sys.stderr.write(datetime.datetime.now().strftime("%H:%M:%S.%f") + " " + string + "\n")
 
+def send_top_packet():
+  global SEND_TIME
+  global SEND_BUFFER
+  message = SEND_BUFFER.get_top()
+  if sock.sendto(message, dest) < len(message):
+    log("[error] unable to fully resend packet")
+    add_to_log("(SEND) Unable to fully resend packet")
+    SEND_TIME = time.time()
+
+  else:
+    add_to_log("(SEND) resent packet ")
+
 
 def send_next_packet():
   add_to_log("(SEND) send_next_packet called ")
@@ -124,7 +136,7 @@ while True:
       sys.exit(-1)
 
   except socket.timeout:
-    send_next_packet()
+    send_top_packet()
     add_to_log("(SEND) resending packet")
 
   finally:
