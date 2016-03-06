@@ -62,7 +62,7 @@ while True:
 
           incoming_sequence = decoded["sequence"]
 
-          if len(RECV_BUFFER.packets) and RECV_BUFFER.get_top()["sequence"] != incoming_sequence:
+          if not len(RECV_BUFFER.packets) or RECV_BUFFER.get_top()["sequence"] != incoming_sequence:
 
             RECV_BUFFER.add(decoded)
 
