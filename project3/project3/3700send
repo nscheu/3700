@@ -69,7 +69,7 @@ def resend_timedout_packets():
   global SEND_BUFFER
 
   for message in SEND_BUFFER.packets:
-    if int(round((time.time() - message['send_time']) * 1000)) > 500:
+    if int(round((time.time() - float(message['send_time'])) * 1000)) > 500:
         message['send_time'] = time.time()
         send_message(message)
         add_to_log("(SEND) ACK Time'd out - send another packet ")
