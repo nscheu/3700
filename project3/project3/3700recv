@@ -85,7 +85,7 @@ while True:
           log("[recv data] " + str(decoded['sequence']) + " (" + str(len(decoded['data'])) + ") ACCEPTED (in-order)")
           sys.stdout.write(decoded['data'])
           #RECV_BUFFER.remove_top()
-          SEQUENCE = decoded['sequence'] + len
+          SEQUENCE = decoded['sequence']
 
         # Send back an ack to the sender
         msg = json.dumps({"ack": decoded['sequence'] + len(decoded['data'])})
