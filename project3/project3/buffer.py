@@ -14,7 +14,10 @@ class Buffer:
         Gets the first packet from the buffer
         :return:
         """
-        return self.packets[0]
+        if len(self.packets) > 0:
+            return self.packets[0]
+        else:
+            return False
 
     def remove_top(self):
         """

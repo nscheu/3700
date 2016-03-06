@@ -57,7 +57,9 @@ while True:
       try:
         decoded = json.loads(data)
 
-        if RECV_BUFFER.free_slots():
+        #if RECV_BUFFER.free_slots():
+        top_saved_msg = RECV_BUFFER.get_top()
+        if not top_saved_msg or (top_saved_msg and top_saved_msg['sequence'] < decoded['sequence']):
 
           #if RECV_BUFFER.free_slots() and not RECV_BUFFER.sequence_in_buffer(decoded['sequence']):
           #if not RECV_BUFFER.sequence_in_buffer(decoded['sequence']):
@@ -86,7 +88,7 @@ while True:
             # You will need to do much more here
             log("[recv data] " + str(decoded['sequence']) + " (" + str(len(decoded['data'])) + ") ACCEPTED (in-order)")
             sys.stdout.write(decoded['data'])
-            RECV_BUFFER.remove_top()
+            #RECV_BUFFER.remove_top()
             #SEQUENCE = decoded['sequence'] + len(decoded['data'])
 
           # Send back an ack to the sender
