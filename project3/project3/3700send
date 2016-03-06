@@ -20,6 +20,7 @@ TIMEOUT = 5
 SEQUENCE = 0
 SEND_BUFFER = Buffer()
 SEND_TIME = time.time()
+ACK_BUFFER = Buffer()
 
 
 # Bind to localhost and an ephemeral port
@@ -48,6 +49,41 @@ def send_top_packet():
     add_to_log("(SEND) resent packet ")
 
 
+def loop_through_ack_buffer():
+    global ACK_BUFFER
+    global SEND_BUFFER
+
+
+    top_ack = ACK_BUFFER.get_top()
+
+    while top_ack:
+        sequence = SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data'])
+
+        if top_ack['sequence'] == sequence:
+            ACK_BUFFER.remove_top()
+            SEND_BUFFER.remove_top()
+        else:
+            break
+
+def resend_timedout_packets():
+  global SEND_BUFFER
+
+  for message in SEND_BUFFER.packets:
+    if int(round((time.time() - message['send_time']) * 1000)) > 500:
+        message['send_time'] = time.time()
+        send_message(message)
+        add_to_log("(SEND) ACK Time'd out - send another packet ")
+
+
+def send_message(msg):
+  if sock.sendto(msg, dest) < len(msg):
+    log("[error] unable to fully send packet")
+    add_to_log("(SEND) Unable to fully send packet")
+  else:
+    log("[send data] " + str(msg['sequence']) + " (" + str(len(msg['data'])) + ")")
+    add_to_log("(SEND) sent with sequence: " + str(msg['sequence']))
+
+
 def send_next_packet():
   add_to_log("(SEND) send_next_packet called ")
 
@@ -56,34 +92,35 @@ def send_next_packet():
   global SEND_TIME
   global SEND_BUFFER
 
-  if SEND_BUFFER.free_slots:
+  #if SEND_BUFFER.free_slots:
 
-    data = sys.stdin.read(DATA_SIZE)
-    add_to_log("(SEND) read in message from stdin: " + str(data))
+  data = sys.stdin.read(DATA_SIZE)
+  add_to_log("(SEND) read in message from stdin: " + str(data))
 
-    if (len(data) > 0):
-      msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False})
+  if (len(data) > 0):
+    msg = json.dumps({"sequence": SEQUENCE, "data": data, "ack": False, "eof": False, "send_time": time.time()})
 
-      # store into buffer
-      SEND_BUFFER.add(msg)
-      msg = SEND_BUFFER.get_top()
+    # store into buffer
+    SEND_BUFFER.add(msg)
+    #msg = SEND_BUFFER.get_top()
 
-      SEQUENCE += len(data)
+    SEQUENCE += len(data)
 
-      if sock.sendto(msg, dest) < len(msg):
-        log("[error] unable to fully send packet")
-        add_to_log("(SEND) Unable to fully send packet")
-        SEND_TIME = time.time()
+    if sock.sendto(msg, dest) < len(msg):
+      log("[error] unable to fully send packet")
+      add_to_log("(SEND) Unable to fully send packet")
+      SEND_TIME = time.time()
 
-      else:
-        log("[send data] " + str(SEQUENCE) + " (" + str(len(data)) + ")")
-        add_to_log("(SEND) sent with sequence: " + str(SEQUENCE))
-
-      return True
     else:
-      add_to_log("(SEND) empty message from stdin")
+      log("[send data] " + str(SEQUENCE) + " (" + str(len(data)) + ")")
+      add_to_log("(SEND) sent with sequence: " + str(SEQUENCE))
 
-      return False
+    return True
+  else:
+    add_to_log("(SEND) empty message from stdin")
+
+    return False
+
 
 # Send first packet
 send_next_packet()
@@ -91,23 +128,68 @@ send_next_packet()
 # Now read in data, send packets
 while True:
 
-  # check timeout
-  if int(round((time.time() - SEND_TIME) * 1000)) > 500:
-      #send_next_packet()
+
+  resend_timedout_packets()
+
+  if SEND_BUFFER.free_slots():
+    send_next_packet()
+
+  else:
+    loop_through_ack_buffer()
+
+    try:
+      result = sock.recvfrom(MSG_SIZE)
+
+      if result:
+          add_to_log("(SEND) message_from_socket received ")
+
+          (data, addr) = result
+          try:
+            decoded = json.loads(data)
+
+            if decoded['ack'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
+              SEND_BUFFER.remove_top()
+              loop_through_ack_buffer()
+
+            else:
+              ACK_BUFFER.insert_packet(decoded)
+
+          except (ValueError, KeyError, TypeError):
+            log("[recv corrupt packet]")
+      else:
+        log("[error] timeout")
+        add_to_log("(SEND) Exiting run")
+        sys.exit(-1)
+
+    except socket.timeout:
       send_top_packet()
-      add_to_log("(SEND) ACK Time'd out - send another packet ")
+      add_to_log("(SEND) resending packet")
+
+    finally:
+      add_to_log("(SEND) ALL FAILED")
+
+sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE, "ack": False}), dest)
+add_to_log("(SEND) eof ")
+
+sys.exit(0)
 
 
-  add_to_log("(SEND) free slots exist ")
+
+
+'''
+
+  # check timeout
+  #if int(round((time.time() - SEND_TIME) * 1000)) > 500:
+  #    send_top_packet()
+  #    add_to_log("(SEND) ACK Time'd out - send another packet ")
+
+
+  #add_to_log("(SEND) free slots exist ")
   log("ABOUT TO SLEEP")
   try:
-    #ready = select.select([sock], [], [], .01)
-    #result = None
-    #if ready:
-    #add_to_log("(SEND) ready to receive")
 
     result = sock.recvfrom(MSG_SIZE)
-    add_to_log("(SEND) result =  ")
+
 
 
     if result:
@@ -117,6 +199,20 @@ while True:
       try:
         decoded = json.loads(data)
 
+        #NEWW-----------------------------------------------------------------------------
+        #TODO:
+        # DONE if ACK in sequence (packet['sequence'] == (SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']))):
+        #  DONE                    remove head from SEND_BUFFER, loop through ACK buffer, comparing against send buffer
+        #
+        # else: If packet['sequence'] != (SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']))), insert into ACK buffer
+
+        if decoded['ack'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
+            SEND_BUFFER.remove_top()
+            loop_through_ack_buffer()
+
+
+
+        ###OLDDDD!!!!!!!!!!!!!!!!!!!!!!
         # If there is an ack, send next packet
         if decoded['ack'] == SEQUENCE:
           SEND_TIME = time.time()
@@ -148,3 +244,4 @@ sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE, "ack": Fa
 add_to_log("(SEND) eof ")
 
 sys.exit(0)
+'''
