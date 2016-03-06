@@ -152,7 +152,7 @@ while True:
           try:
             decoded = json.loads(data)
 
-            if decoded['ack'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
+            if decoded['ack'] and decoded['sequence'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
               SEND_BUFFER.remove_top()
               loop_through_ack_buffer()
 
