@@ -24,7 +24,8 @@ class Buffer:
         Removes the first packet from the buffer
         :return:
         """
-        self.packets.pop(0)
+        if len(self.packets):
+            self.packets.pop(0)
 
     def free_slots(self):
         """

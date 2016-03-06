@@ -19,7 +19,7 @@ DATA_SIZE = 1000
 TIMEOUT = 5
 SEQUENCE = 0
 SEND_BUFFER = Buffer()
-SEND_BUFFER.size = 3
+SEND_BUFFER.size = 4
 SEND_TIME = time.time()
 ACK_BUFFER = Buffer()
 
@@ -57,7 +57,7 @@ def loop_through_ack_buffer():
 
     top_ack = ACK_BUFFER.get_top()
 
-    while top_ack and SEND_BUFFER.get_top():
+    while top_ack: # and SEND_BUFFER.get_top():
         sequence = SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data'])
         add_to_log("(SEND) Looping on sequence SENDBUFF = " + str(sequence) + " ACKBUFF = " + str(top_ack['ack']))
         if top_ack['ack'] == sequence:
@@ -157,12 +157,12 @@ while True:
         try:
 
           decoded = json.loads(data)
-          add_to_log("(SEND) decoded data. decoded['ack'] = " + str(decoded['ack']) + " SENDBUFF top = " +
-                     str(SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data'])))
+          #add_to_log("(SEND) decoded data. decoded['ack'] = " + str(decoded['ack']) + " SENDBUFF top = " +
+          #           str(SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data'])))
 
 
           if decoded['ack'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
-            add_to_log("(SEND) ACK from socket received: " + str(decoded['ack']))
+          #  add_to_log("(SEND) ACK from socket received: " + str(decoded['ack']))
 
             SEND_BUFFER.remove_top()
             add_to_log("(SEND) remove top")
