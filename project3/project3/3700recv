@@ -49,6 +49,7 @@ def send_ack(decoded):
   else:
     add_to_log("(RECV) sending ack: " + str(msg) + " of length " + str(len(msg)))
 
+
 def loop_through_buffer():
     global RECV_BUFFER
     global SEQUENCE
@@ -57,7 +58,7 @@ def loop_through_buffer():
 
     while top_msg:
         if top_msg['sequence'] == SEQUENCE:
-            if decoded['eof']:
+            if top_msg['eof']:
                 log("[completed]")
                 sys.exit(0)
 
