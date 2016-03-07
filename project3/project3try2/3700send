@@ -15,11 +15,12 @@ from create_log_file import add_to_log
 
 MSG_SIZE = 1500
 DATA_SIZE = 1000
-TIMEOUT = 5
+TIMEOUT = 10
 SEQUENCE = 0
 SEND_BUFFER = Buffer()
 SEND_BUFFER.size = 50
 ACK_BUFFER = Buffer()
+ACK_TIMEOUT = 30
 
 
 # Bind to localhost and an ephemeral port
@@ -73,7 +74,7 @@ def resend_timedout_packets():
 
     for packet in SEND_BUFFER.packets:
         message_send_time = packet['send_time']
-        if int(round((time.time() - message_send_time) * 1000)) > 750:
+        if int(round((time.time() - message_send_time) * 1000)) > ACK_TIMEOUT:
             packet['send_time'] = float(time.time())
             send_message(json.dumps(packet))
 
