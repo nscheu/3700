@@ -1,0 +1,166 @@
+#!/usr/bin/python -u
+#
+# CS3700, Spring 2015
+# Project 2 Starter Code
+#
+
+import sys
+import socket
+import datetime
+import json
+from create_log_file import add_to_log
+from buffer import Buffer
+
+
+def log(string):
+    """
+    Logs the given string to stderr
+    :param string: the string to log
+    :return: void - logs to stderr
+    """
+    sys.stderr.write(datetime.datetime.now().strftime("%H:%M:%S.%f") + " " + string + "\n")
+
+MSG_SIZE = 1500
+TIMEOUT = 30
+RECV_BUFFER = Buffer()
+SEQUENCE = 0
+
+# Bind to localhost and an ephemeral port
+UDP_IP = "127.0.0.1"
+UDP_PORT = 0
+
+# Set up the socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
+sock.bind((UDP_IP, UDP_PORT))
+sock.settimeout(TIMEOUT)
+
+# Get port we bound to
+UDP_PORT = sock.getsockname()[1]
+log("[bound] " + str(UDP_PORT))
+
+
+def send_ack(data_packet):
+    """
+    Creates a new ack based on the decoded sequence number and sends the acknowledgement
+    on the socket connection.
+    :param data_packet: the data packet to create the acknowledgement for
+    :return: void - sends packet across the socket
+    """
+    msg = json.dumps({"ack": data_packet['sequence'] + len(data_packet['data'])})
+    log("ABOUT TO SEND " + msg)
+
+    if sock.sendto(msg, addr) < len(msg):
+        log("[error] unable to fully send packet")
+
+    else:
+        log("Sent ack: " + str(data_packet['sequence'] + len(data_packet['data'])))
+
+
+def write_data_to_stdout(json_message):
+    """
+    Simply takes in a json object and writes the data in the object to stdout. Also,
+    sets the SEQUENCE variable to the (sequence number + data length)
+    :param json_message: the message to write data out to
+    :return: void - writes data to stdout
+    """
+    global SEQUENCE
+
+    sys.stdout.write(json_message['data'])
+    SEQUENCE = json_message['sequence'] + len(json_message['data'])
+
+
+def loop_through_buffer():
+    """
+    Loops through the buffer of this receiver, checking to see if the sequence number
+    is equal to this sequence number. if so, decide to either close (if eof), or
+    write the data to stdout. Then, remove the message from the buffer, and continue
+    the loop, checking for more in-order packets, stopping when an out-of-order packet
+    is found. This ensures in-order delivery to stdout.
+    :return: void - closes the system or writes to stdout
+    """
+    global RECV_BUFFER
+    global SEQUENCE
+
+    top_msg = RECV_BUFFER.get_top()
+
+    while top_msg:
+        if top_msg['sequence'] == SEQUENCE:
+            if top_msg['eof']:
+                log("[completed]")
+                sys.exit(0)
+
+            write_data_to_stdout(top_msg)
+
+            RECV_BUFFER.remove_top()
+            top_msg = RECV_BUFFER.get_top()
+        else:
+            break
+
+
+def in_sequence_procedures(packet):
+    """
+    Performs the actions for packet that had an in-order sequence number.
+    Checks if it is an end of file (if so, close). Else, if the data
+    segment in the packet is not empty, write it's contents to stdout.
+    Then, for all cases, send an ACK to the sender for the packet, and
+    loop through the buffer to attempt to write any more packets to
+    stdout that are now in-order after written out.
+    :param packet: the packet to write to stdout.
+    :return:
+    """
+    if packet['eof']:
+        log("[completed]")
+        sys.exit(0)
+
+    elif packet['data']:
+        log("[recv data] " + str(packet['sequence']) + " (" +
+            str(len(packet['data'])) + ") ACCEPTED (in-order)")
+
+        write_data_to_stdout(packet)
+
+    send_ack(packet)
+    loop_through_buffer()
+
+
+def try_to_read_packet(socket_message):
+    """
+    Takes in a message (assumed to be from the socket), and tries to parse
+    the message into JSON and run the functions to get it's sequence number,
+    write to stdout if possible, store in buffers, etc.
+    :param socket_message: the message from the socket to read and parse
+    :return: void - Writes to stdout when in-order data seen
+    """
+    global SEQUENCE
+    global RECV_BUFFER
+
+    try:
+        decoded = json.loads(socket_message)
+
+        if decoded['sequence'] == SEQUENCE:
+            in_sequence_procedures(decoded)
+
+        else:
+            if decoded['sequence'] > SEQUENCE:
+                RECV_BUFFER.insert_packet(decoded)
+            send_ack(decoded)
+
+    except (ValueError, KeyError, TypeError) as e:
+        log("[recv corrupt packet]")
+        raise e
+
+
+"""
+Run the main loop, receiving from the socket connection,
+and reading the packets as they come in. Timing out if
+no message has been received for a long time (see TIMEOUT)
+"""
+while True:
+    result = sock.recvfrom(MSG_SIZE)
+
+    if result:
+        (data, addr) = result
+        try_to_read_packet(data)
+
+    else:
+        log("[error] timeout")
+        sys.exit(-1)
