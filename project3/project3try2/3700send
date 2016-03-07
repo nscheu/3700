@@ -116,7 +116,7 @@ def send_next_packet():
 
     new_data = sys.stdin.read(DATA_SIZE)
 
-    if len(data) > 0:
+    if len(new_data) > 0:
         msg = json.dumps({"sequence": SEQUENCE, "data": new_data,
                           "ack": False, "eof": False, "send_time": float(time.time())})
 
