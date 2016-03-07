@@ -153,7 +153,7 @@ def try_to_read_ack(ack_in):
             ACK_BUFFER.insert_ack_packet(decoded)
 
     except (ValueError, KeyError, TypeError) as e:
-        log("[recv corrupt packet]: " + str(ack_in) + str(e))
+        log("[recv corrupt packet]: " + str(ack_in) + " top = " + str(SEND_BUFFER.get_top()) + " " + str(e))
 
 
 
