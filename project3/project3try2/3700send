@@ -18,7 +18,7 @@ DATA_SIZE = 1000
 TIMEOUT = 5
 SEQUENCE = 0
 SEND_BUFFER = Buffer()
-SEND_BUFFER.size = 4
+SEND_BUFFER.size = 50
 ACK_BUFFER = Buffer()
 
 
@@ -170,7 +170,7 @@ def receive_ack():
         try_to_read_ack(data)
     else:
         log("[error] timeout")
-        sys.exit(-1)
+        #sys.exit(-1)
 
 
 # Send first packet
