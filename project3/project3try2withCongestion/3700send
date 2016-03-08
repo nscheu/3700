@@ -52,6 +52,7 @@ def loop_through_ack_buffer():
     """
     global ACK_BUFFER
     global SEND_BUFFER
+    global ACK_TIMEOUT
 
     top_ack = ACK_BUFFER.get_top()
 
@@ -60,6 +61,9 @@ def loop_through_ack_buffer():
         if top_ack['ack'] == sequence:
             ACK_BUFFER.remove_top()
             SEND_BUFFER.remove_top()
+
+            #TODO: NEWWWWWWWW
+            ACK_TIMEOUT -= (1/ACK_TIMEOUT)
         else:
             break
 
@@ -71,6 +75,7 @@ def resend_timedout_packets():
     :return: void - resends any un-acked packets that time out
     """
     global SEND_BUFFER
+    global ACK_TIMEOUT
 
     timed_out = False
 
@@ -83,6 +88,8 @@ def resend_timedout_packets():
 
     if timed_out:
         SEND_BUFFER.size /= 2
+        #TODO: NEWWWW
+        ACK_TIMEOUT += (1/ACK_TIMEOUT)
 
 
 def send_message(msg):
