@@ -61,10 +61,6 @@ def loop_through_ack_buffer():
         if top_ack['ack'] == sequence:
             ACK_BUFFER.remove_top()
             SEND_BUFFER.remove_top()
-
-            #TODO: NEWWWWW
-            ACK_TIMEOUT = int(round((time.time() - SEND_BUFFER.get_top()['send_time']) * 1000))
-
         else:
             break
 
@@ -89,8 +85,6 @@ def resend_timedout_packets():
 
     if timed_out:
         SEND_BUFFER.size /= 2
-        #TODO: NEWWWW
-        ACK_TIMEOUT *= 2
 
 
 def send_message(msg):
@@ -166,8 +160,6 @@ def try_to_read_ack(ack_in):
             if decoded['ack'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
                 SEND_BUFFER.remove_top()
                 loop_through_ack_buffer()
-                #TODO: NEWWWWWWWW
-                ACK_TIMEOUT /= 2
         else:
             ACK_BUFFER.insert_ack_packet(decoded)
 
