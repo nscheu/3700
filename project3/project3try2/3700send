@@ -20,7 +20,7 @@ SEQUENCE = 0
 SEND_BUFFER = Buffer()
 SEND_BUFFER.size = 50
 ACK_BUFFER = Buffer()
-ACK_TIMEOUT = 30
+ACK_TIMEOUT = 30 #500 passes all basic tests, 30 passes all performance (fails large basic)
 
 
 # Bind to localhost and an ephemeral port
