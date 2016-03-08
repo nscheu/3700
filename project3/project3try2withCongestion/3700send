@@ -52,7 +52,6 @@ def loop_through_ack_buffer():
     """
     global ACK_BUFFER
     global SEND_BUFFER
-    global ACK_TIMEOUT
 
     top_ack = ACK_BUFFER.get_top()
 
@@ -72,7 +71,6 @@ def resend_timedout_packets():
     :return: void - resends any un-acked packets that time out
     """
     global SEND_BUFFER
-    global ACK_TIMEOUT
 
     timed_out = False
 
@@ -151,7 +149,6 @@ def try_to_read_ack(ack_in):
     """
     global SEND_BUFFER
     global ACK_BUFFER
-    global ACK_TIMEOUT
 
     try:
         decoded = json.loads(ack_in)
@@ -214,6 +211,3 @@ while True:
 
 
 send_eof()
-
-
-
