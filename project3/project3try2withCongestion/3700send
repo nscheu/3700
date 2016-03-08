@@ -1,0 +1,216 @@
+#!/usr/bin/python -u
+#
+# CS3700, Spring 2015
+# Project 2 Starter Code
+#
+
+import sys
+import socket
+import time
+import datetime
+import time
+import json
+from buffer import Buffer
+from create_log_file import add_to_log
+
+MSG_SIZE = 1500
+DATA_SIZE = 1000
+TIMEOUT = 10
+SEQUENCE = 0
+SEND_BUFFER = Buffer()
+SEND_BUFFER.size = 50
+ACK_BUFFER = Buffer()
+ACK_TIMEOUT = 30 #500 passes all basic tests, 30 passes all performance (fails large basic)
+
+
+# Bind to localhost and an ephemeral port
+IP_PORT = sys.argv[1]
+UDP_IP = IP_PORT[0:IP_PORT.find(":")]
+UDP_PORT = int(IP_PORT[IP_PORT.find(":")+1:])
+dest = (UDP_IP, UDP_PORT)
+
+# Set up the socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
+sock.settimeout(TIMEOUT)
+
+
+def log(string):
+    """
+    Logs the given string to stderr
+    :param string: the string to log
+    :return: void - logs to stderr
+    """
+    sys.stderr.write(datetime.datetime.now().strftime("%H:%M:%S.%f") + " " + string + "\n")
+
+
+def loop_through_ack_buffer():
+    """
+    Starts at the top ack in the ACK_BUFFER, checking to see if it's ack number
+    is equal to the top packet in the SEND_BUFFER. If matched, remove both.
+    If not a match, stop the loop (not in-order anymore)
+    :return: void - removes ACK'ed items from the SEND_BUFFER
+    """
+    global ACK_BUFFER
+    global SEND_BUFFER
+
+    top_ack = ACK_BUFFER.get_top()
+
+    while top_ack:
+        sequence = SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data'])
+        if top_ack['ack'] == sequence:
+            ACK_BUFFER.remove_top()
+            SEND_BUFFER.remove_top()
+        else:
+            break
+
+
+def resend_timedout_packets():
+    """
+    Runs through the SEND_BUFFER's packets, checking to see if any have
+    timed out yet (haven't received an ACK for it). If so, resend the packet.
+    :return: void - resends any un-acked packets that time out
+    """
+    global SEND_BUFFER
+
+    timed_out = False
+
+    for packet in SEND_BUFFER.packets:
+        message_send_time = packet['send_time']
+        if int(round((time.time() - message_send_time) * 1000)) > ACK_TIMEOUT:
+            packet['send_time'] = float(time.time())
+            send_message(json.dumps(packet))
+            timed_out = True
+
+    if timed_out:
+        SEND_BUFFER.size /= 2
+
+
+def send_message(msg):
+    """
+    Takes in a message (String) and sends it across the socket
+    connection.
+    :param msg: the String (data) to send over the connection
+    :return: void - sends over a socket connection
+    """
+    if sock.sendto(msg, dest) < len(msg):
+        log("[error] unable to fully send packet")
+    else:
+        msg = json.loads(msg)
+        log("[send data] " + str(msg['sequence']) + " (" + str(len(msg['data'])) + ")")
+
+
+def send_eof():
+    """
+    Sends an eof across the socket connection, then closes the sender
+    :return: void - sys.exit(0)
+    """
+    global SEQUENCE
+
+    sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE, "ack": False}), dest)
+    sys.exit(0)
+
+
+def send_next_packet():
+    """
+    Sends the next packet across the socket connection. Reads in the data from
+    stdin, creates a packet using that data, adds it to the buffer, and sends
+    the packet on the socket. If the message from stdin is empty, and the
+    SEND_BUFFER is empty, create an eof packet and send it on the socket.
+    :return: True if a message has been sent, False if not, and sys.close if eof sent.
+    """
+    global SEQUENCE
+    global SEND_BUFFER
+
+    new_data = sys.stdin.read(DATA_SIZE)
+
+    if len(new_data) > 0:
+        msg = json.dumps({"sequence": SEQUENCE, "data": new_data,
+                          "ack": False, "eof": False, "send_time": float(time.time())})
+
+        SEND_BUFFER.add(json.loads(msg))
+        SEQUENCE += len(new_data)
+        send_message(msg)
+        return True
+    else:
+        if not len(SEND_BUFFER.packets):
+            send_eof()
+        return False
+
+
+def try_to_read_ack(ack_in):
+    """
+    Attempts to decode the message from the socket (as an ACK). If it is in-order
+    (ack number equals the sequence + data of the first packet in the buffer),
+    remove that packet from the buffer, and loop through the ACK buffer to
+    see if the order is correct on any of those yet. If not in order,
+    just add the ACK to the ACK buffer.
+    :param ack_in - JSON message - the ack to read
+    :return: void - modifies the buffers if possible
+    """
+    global SEND_BUFFER
+    global ACK_BUFFER
+
+    try:
+        decoded = json.loads(ack_in)
+
+        if SEND_BUFFER.get_top():
+            if decoded['ack'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
+                SEND_BUFFER.remove_top()
+                loop_through_ack_buffer()
+        else:
+            ACK_BUFFER.insert_ack_packet(decoded)
+
+        SEND_BUFFER.size += 1
+
+    except (ValueError, KeyError, TypeError) as e:
+        log("[recv corrupt packet]: " + str(ack_in) + " top = " + str(SEND_BUFFER.get_top()) + " " + str(e))
+
+
+def receive_ack():
+    """
+    Receive's an ack from the socket, or times out if no message
+    received in the timeout window
+    :return:
+    """
+    global MSG_SIZE
+
+    result = sock.recvfrom(MSG_SIZE)
+
+    if result:
+        (data, addr) = result
+        try_to_read_ack(data)
+    else:
+        log("[error] timeout")
+        #sys.exit(-1)
+
+
+# Send first packet
+send_next_packet()
+
+"""
+This is the main loop for the sender, starting by resending any
+timed out packets, checking for free slots in the buffer (reading
+in more data and sending it out if there are free slots), clearing
+out the ACK and SEND buffers for any in-order ACKed packets, and
+then attempting to receive any ACKs from the receiver. Closing when
+EOF is reached.
+"""
+while True:
+    resend_timedout_packets()
+
+    if SEND_BUFFER.free_slots():
+        send_next_packet()
+
+    loop_through_ack_buffer()
+
+    try:
+        receive_ack()
+
+    except socket.timeout:
+        continue
+
+
+send_eof()
+
+
+
