@@ -167,7 +167,7 @@ def try_to_read_ack(ack_in):
                 SEND_BUFFER.remove_top()
                 loop_through_ack_buffer()
                 #TODO: NEWWWWWWWW
-                ACK_TIMEOUT = int(round((time.time() - SEND_BUFFER.get_top()['send_time']) * 1000))
+                ACK_TIMEOUT /= 2
         else:
             ACK_BUFFER.insert_ack_packet(decoded)
 
