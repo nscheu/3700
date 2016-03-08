@@ -63,7 +63,7 @@ def loop_through_ack_buffer():
             SEND_BUFFER.remove_top()
 
             #TODO: NEWWWWWWWW
-            ACK_TIMEOUT -= (1/ACK_TIMEOUT)
+            ACK_TIMEOUT -= (ACK_TIMEOUT / 2)
         else:
             break
 
@@ -89,7 +89,7 @@ def resend_timedout_packets():
     if timed_out:
         SEND_BUFFER.size /= 2
         #TODO: NEWWWW
-        ACK_TIMEOUT += (1/ACK_TIMEOUT)
+        ACK_TIMEOUT += (ACK_TIMEOUT / 2)
 
 
 def send_message(msg):
