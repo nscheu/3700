@@ -61,6 +61,10 @@ def loop_through_ack_buffer():
         if top_ack['ack'] == sequence:
             ACK_BUFFER.remove_top()
             SEND_BUFFER.remove_top()
+
+            #TODO: NEWWWWW
+            ACK_TIMEOUT = int(round((time.time() - SEND_BUFFER.get_top()['send_time']) * 1000))
+
         else:
             break
 
@@ -82,11 +86,11 @@ def resend_timedout_packets():
             packet['send_time'] = float(time.time())
             send_message(json.dumps(packet))
             timed_out = True
-            #TODO: NEWWWW
-            ACK_TIMEOUT = int(round((time.time() - message_send_time) * 1000))
 
     if timed_out:
         SEND_BUFFER.size /= 2
+        #TODO: NEWWWW
+        ACK_TIMEOUT *= 2
 
 
 def send_message(msg):
