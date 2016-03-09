@@ -84,7 +84,6 @@ def resend_timedout_packets():
 
     if timed_out:
         SEND_BUFFER.size /= 2
-        ACK_TIMEOUT *= 2
 
 
 def send_message(msg):
@@ -215,8 +214,6 @@ while True:
         receive_ack()
 
     except socket.timeout:
-        # TODO: NEWWWWWW
-        ACK_TIMEOUT *= 2
         continue
 
 
