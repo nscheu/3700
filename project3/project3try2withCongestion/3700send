@@ -20,7 +20,7 @@ SEQUENCE = 0
 SEND_BUFFER = Buffer()
 SEND_BUFFER.size = 50
 ACK_BUFFER = Buffer()
-ACK_TIMEOUT = 550 #500 passes all basic tests, 30 passes all performance (fails large basic)
+ACK_TIMEOUT = 500 #500 passes all basic tests, 30 passes all performance (fails large basic)
 
 
 # Bind to localhost and an ephemeral port
@@ -71,6 +71,7 @@ def resend_timedout_packets():
     :return: void - resends any un-acked packets that time out
     """
     global SEND_BUFFER
+    global ACK_TIMEOUT
 
     timed_out = False
 
