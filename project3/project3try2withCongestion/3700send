@@ -18,9 +18,9 @@ DATA_SIZE = 1000
 TIMEOUT = 10
 SEQUENCE = 0
 SEND_BUFFER = Buffer()
-SEND_BUFFER.size = 1
+SEND_BUFFER.size = 50
 ACK_BUFFER = Buffer()
-ACK_TIMEOUT = 500 #500 passes all basic tests, 30 passes all performance (fails large basic)
+ACK_TIMEOUT = 30 #500 passes all basic tests, 30 passes all performance (fails large basic)
 
 
 # Bind to localhost and an ephemeral port
@@ -30,7 +30,7 @@ UDP_PORT = int(IP_PORT[IP_PORT.find(":")+1:])
 dest = (UDP_IP, UDP_PORT)
 
 # Set up the socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.settimeout(TIMEOUT)
 
 
@@ -71,7 +71,6 @@ def resend_timedout_packets():
     :return: void - resends any un-acked packets that time out
     """
     global SEND_BUFFER
-    global ACK_TIMEOUT
 
     timed_out = False
 
@@ -150,25 +149,18 @@ def try_to_read_ack(ack_in):
     """
     global SEND_BUFFER
     global ACK_BUFFER
-    global ACK_TIMEOUT
 
     try:
         decoded = json.loads(ack_in)
 
         if SEND_BUFFER.get_top():
             if decoded['ack'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
-                #TODO: NEWWWW
-                ACK_TIMEOUT = SEND_BUFFER.get_top()['sequence']
-
                 SEND_BUFFER.remove_top()
                 loop_through_ack_buffer()
-
-
         else:
             ACK_BUFFER.insert_ack_packet(decoded)
 
-        SEND_BUFFER.size *= 2
-
+        SEND_BUFFER.size += 1
 
     except (ValueError, KeyError, TypeError) as e:
         log("[recv corrupt packet]: " + str(ack_in) + " top = " + str(SEND_BUFFER.get_top()) + " " + str(e))
