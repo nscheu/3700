@@ -167,7 +167,7 @@ def try_to_read_ack(ack_in):
         else:
             ACK_BUFFER.insert_ack_packet(decoded)
 
-        SEND_BUFFER.size += 2
+        SEND_BUFFER.size *= 2
 
 
     except (ValueError, KeyError, TypeError) as e:
