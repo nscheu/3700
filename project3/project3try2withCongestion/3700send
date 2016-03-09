@@ -20,7 +20,7 @@ SEQUENCE = 0
 SEND_BUFFER = Buffer()
 SEND_BUFFER.size = 50
 ACK_BUFFER = Buffer()
-RTO = 30 #500 passes all basic tests, 30 passes all performance (fails large basic)
+RTO = 550 #500 passes all basic tests, 30 passes all performance (fails large basic)
 OLD_RTT = 0
 RTT_ARRAY_INCREMENT = 0
 
