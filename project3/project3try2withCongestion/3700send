@@ -60,13 +60,15 @@ def update_rtt_new_ack(ack_in):
 
     ack_rtt = time.time() - float(ack_in['pack_send_time'])
 
-   # RTT_ARRAY[RTT_ARRAY_INCREMENT % 10] = ack_rtt
-   # RTT_ARRAY_INCREMENT += 1
+    if RTT_ARRAY_INCREMENT >= 10:
+        RTT_ARRAY[RTT_ARRAY_INCREMENT % 10] = ack_rtt
+    else:
+        RTT_ARRAY.append(ack_rtt)
+    RTT_ARRAY_INCREMENT += 1
 
-    #updated_rtt_avg = sum(RTT_ARRAY) / len(RTT_ARRAY)
+    updated_rtt_avg = sum(RTT_ARRAY) / len(RTT_ARRAY)
 
-    #new_rtt = (0.875 * OLD_RTT) + ((1-.875) * updated_rtt_avg)
-    new_rtt = (0.875 * OLD_RTT) + ((1-.875) * ack_rtt)
+    new_rtt = (0.875 * OLD_RTT) + ((1-.875) * updated_rtt_avg)
     OLD_RTT = new_rtt
     RTO = 2 * new_rtt
     log("RTO = " + str(RTO))
@@ -106,7 +108,7 @@ def resend_timedout_packets():
 
     for packet in SEND_BUFFER.packets:
         message_send_time = packet['send_time']
-        if int(round((time.time() - message_send_time) * 1000)) > int(round(RTO * 1000)):
+        if int(round((time.time() - message_send_time) * 1000)) > RTO:
             packet['send_time'] = float(time.time())
             send_message(json.dumps(packet))
             timed_out = True
