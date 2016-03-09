@@ -46,7 +46,7 @@ def send_ack(data_packet):
     :param data_packet: the data packet to create the acknowledgement for
     :return: void - sends packet across the socket
     """
-    msg = json.dumps({"ack": data_packet['sequence'] + len(data_packet['data'])})
+    msg = json.dumps({"ack": data_packet['sequence'] + len(data_packet['data']), "pack_send_time": data_packet['send_time']})
     log("ABOUT TO SEND " + msg)
 
     if sock.sendto(msg, addr) < len(msg):
