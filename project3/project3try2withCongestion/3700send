@@ -69,6 +69,7 @@ def update_rtt_new_ack(ack_in):
 
     OLD_RTT = new_rtt
     RTO = 2 * new_rtt
+    log("RTO = " + str(RTO))
 
 
 def loop_through_ack_buffer():
@@ -112,6 +113,7 @@ def resend_timedout_packets():
 
     if timed_out:
         SEND_BUFFER.size /= 2
+
 
 
 def send_message(msg):
