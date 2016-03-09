@@ -20,7 +20,7 @@ SEQUENCE = 0
 SEND_BUFFER = Buffer()
 SEND_BUFFER.size = 50
 ACK_BUFFER = Buffer()
-ACK_TIMEOUT = 30 #500 passes all basic tests, 30 passes all performance (fails large basic)
+ACK_TIMEOUT = 550 #500 passes all basic tests, 30 passes all performance (fails large basic)
 
 
 # Bind to localhost and an ephemeral port
@@ -149,6 +149,7 @@ def try_to_read_ack(ack_in):
     """
     global SEND_BUFFER
     global ACK_BUFFER
+    global ACK_TIMEOUT
 
     try:
         decoded = json.loads(ack_in)
@@ -157,6 +158,9 @@ def try_to_read_ack(ack_in):
             if decoded['ack'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
                 SEND_BUFFER.remove_top()
                 loop_through_ack_buffer()
+
+                #TODO: NEWWWW
+                ACK_TIMEOUT /= 2
         else:
             ACK_BUFFER.insert_ack_packet(decoded)
 
@@ -207,6 +211,8 @@ while True:
         receive_ack()
 
     except socket.timeout:
+        # TODO: NEWWWWWW
+        ACK_TIMEOUT *= 2
         continue
 
 
