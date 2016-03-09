@@ -60,13 +60,13 @@ def update_rtt_new_ack(ack_in):
 
     ack_rtt = time.time() - float(ack_in['pack_send_time'])
 
-    RTT_ARRAY[RTT_ARRAY_INCREMENT % 10] = ack_rtt
-    RTT_ARRAY_INCREMENT += 1
+   # RTT_ARRAY[RTT_ARRAY_INCREMENT % 10] = ack_rtt
+   # RTT_ARRAY_INCREMENT += 1
 
-    updated_rtt_avg = sum(RTT_ARRAY) / len(RTT_ARRAY)
+    #updated_rtt_avg = sum(RTT_ARRAY) / len(RTT_ARRAY)
 
-    new_rtt = (0.875 * OLD_RTT) + ((1-.875) * updated_rtt_avg)
-
+    #new_rtt = (0.875 * OLD_RTT) + ((1-.875) * updated_rtt_avg)
+    new_rtt = (0.875 * OLD_RTT) + ((1-.875) * ack_rtt)
     OLD_RTT = new_rtt
     RTO = 2 * new_rtt
     log("RTO = " + str(RTO))
