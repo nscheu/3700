@@ -18,7 +18,7 @@ DATA_SIZE = 1000
 TIMEOUT = 10
 SEQUENCE = 0
 SEND_BUFFER = Buffer()
-SEND_BUFFER.size = 100
+SEND_BUFFER.size = 1
 ACK_BUFFER = Buffer()
 RTO = 0.550 #500 passes all basic tests, 30 passes all performance (fails large basic)
 OLD_RTT = 0
@@ -114,7 +114,7 @@ def resend_timedout_packets():
             timed_out = True
 
     #if timed_out:
-    #SEND_BUFFER.size /= 2
+    SEND_BUFFER.size = (SEND_BUFFER.size * 2) + 1
 
 
 def send_message(msg):
@@ -194,7 +194,7 @@ def try_to_read_ack(ack_in):
         else:
             ACK_BUFFER.insert_ack_packet(decoded)
 
-        #SEND_BUFFER.size += 1
+        SEND_BUFFER.size += 1
 
     except (ValueError, KeyError, TypeError) as e:
         log("[recv corrupt packet]: " + str(ack_in) + " top = " + str(SEND_BUFFER.get_top()) + " " + str(e))
