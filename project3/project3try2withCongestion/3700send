@@ -115,7 +115,6 @@ def resend_timedout_packets():
         SEND_BUFFER.size /= 2
 
 
-
 def send_message(msg):
     """
     Takes in a message (String) and sends it across the socket
@@ -184,7 +183,7 @@ def try_to_read_ack(ack_in):
     try:
         decoded = json.loads(ack_in)
 
-        update_rtt_new_ack(ack_in)
+        update_rtt_new_ack(decoded)
 
         if SEND_BUFFER.get_top():
             if decoded['ack'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
