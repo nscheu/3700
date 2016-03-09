@@ -20,7 +20,11 @@ SEQUENCE = 0
 SEND_BUFFER = Buffer()
 SEND_BUFFER.size = 50
 ACK_BUFFER = Buffer()
-ACK_TIMEOUT = 30 #500 passes all basic tests, 30 passes all performance (fails large basic)
+RTO = 30 #500 passes all basic tests, 30 passes all performance (fails large basic)
+OLD_RTT = 0
+RTT_ARRAY_INCREMENT = 0
+
+RTT_ARRAY = []
 
 
 # Bind to localhost and an ephemeral port
@@ -41,6 +45,30 @@ def log(string):
     :return: void - logs to stderr
     """
     sys.stderr.write(datetime.datetime.now().strftime("%H:%M:%S.%f") + " " + string + "\n")
+
+
+def update_rtt_new_ack(ack_in):
+    """
+    Adds the new ack_in's RTT to the RTT array at the oldest position
+    :param ack_in: JSON packet that updates the global ACK array
+    :return: void
+    """
+    global RTT_ARRAY
+    global RTT_ARRAY_INCREMENT
+    global RTO
+    global OLD_RTT
+
+    ack_rtt = time.time() - float(ack_in['pack_send_time'])
+
+    RTT_ARRAY[RTT_ARRAY_INCREMENT % 10] = ack_rtt
+    RTT_ARRAY_INCREMENT += 1
+
+    updated_rtt_avg = sum(RTT_ARRAY) / len(RTT_ARRAY)
+
+    new_rtt = (0.875 * OLD_RTT) + ((1-.875) * updated_rtt_avg)
+
+    OLD_RTT = new_rtt
+    RTO = 2 * new_rtt
 
 
 def loop_through_ack_buffer():
@@ -71,12 +99,13 @@ def resend_timedout_packets():
     :return: void - resends any un-acked packets that time out
     """
     global SEND_BUFFER
+    global RTO
 
     timed_out = False
 
     for packet in SEND_BUFFER.packets:
         message_send_time = packet['send_time']
-        if int(round((time.time() - message_send_time) * 1000)) > ACK_TIMEOUT:
+        if int(round((time.time() - message_send_time) * 1000)) > RTO:
             packet['send_time'] = float(time.time())
             send_message(json.dumps(packet))
             timed_out = True
@@ -152,6 +181,8 @@ def try_to_read_ack(ack_in):
 
     try:
         decoded = json.loads(ack_in)
+
+        update_rtt_new_ack(ack_in)
 
         if SEND_BUFFER.get_top():
             if decoded['ack'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
