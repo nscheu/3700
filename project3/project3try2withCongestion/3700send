@@ -113,8 +113,8 @@ def resend_timedout_packets():
             send_message(json.dumps(packet))
             timed_out = True
 
-    if timed_out:
-        SEND_BUFFER.size /= 2
+    #if timed_out:
+    #SEND_BUFFER.size /= 2
 
 
 def send_message(msg):
@@ -194,7 +194,7 @@ def try_to_read_ack(ack_in):
         else:
             ACK_BUFFER.insert_ack_packet(decoded)
 
-        SEND_BUFFER.size += 1
+        #SEND_BUFFER.size += 1
 
     except (ValueError, KeyError, TypeError) as e:
         log("[recv corrupt packet]: " + str(ack_in) + " top = " + str(SEND_BUFFER.get_top()) + " " + str(e))
