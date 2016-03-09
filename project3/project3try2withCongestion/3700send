@@ -106,7 +106,7 @@ def resend_timedout_packets():
 
     for packet in SEND_BUFFER.packets:
         message_send_time = packet['send_time']
-        if int(round((time.time() - message_send_time) * 1000)) > RTO:
+        if int(round((time.time() - message_send_time) * 1000)) > int(round(RTO * 1000)):
             packet['send_time'] = float(time.time())
             send_message(json.dumps(packet))
             timed_out = True
