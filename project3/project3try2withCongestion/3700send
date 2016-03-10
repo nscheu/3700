@@ -252,6 +252,7 @@ while True:
         receive_ack()
 
     except socket.timeout:
+        log("SOCKET TIMEOUT SENDER")
         continue
 
 
