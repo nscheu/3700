@@ -125,7 +125,7 @@ def resend_timedout_packets():
             send_message(json.dumps(packet))
             timed_out = True
             #TODO: NEWWW
-            SEND_BUFFER.size /= 2
+            #SEND_BUFFER.size /= 2
         iterator += 1
 
     #TODO: COMMENTED OUT ------------------------------------
