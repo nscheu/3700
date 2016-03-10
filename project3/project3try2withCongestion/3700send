@@ -125,13 +125,15 @@ def resend_timedout_packets():
             send_message(json.dumps(packet))
             timed_out = True
             #TODO: NEWWW
-            SEND_BUFFER.size -= 2
+            SEND_BUFFER.size -= 1
         iterator += 1
 
     #TODO: COMMENTED OUT ------------------------------------
     #if timed_out:
     #SEND_BUFFER.size -= 1
     #SEND_BUFFER.size = int(round(SEND_BUFFER.size * 0.7) + 1)
+    if SEND_BUFFER.size <= 0:
+        SEND_BUFFER.size = 1
 
 
 def send_message(msg):
