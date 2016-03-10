@@ -118,7 +118,6 @@ def in_sequence_procedures(packet):
 
         write_data_to_stdout(packet)
 
-    send_ack(packet)
     loop_through_buffer()
 
 
@@ -142,7 +141,7 @@ def try_to_read_packet(socket_message):
         else:
             if decoded['sequence'] > SEQUENCE:
                 RECV_BUFFER.insert_packet(decoded)
-            send_ack(decoded)
+        send_ack(decoded)
 
     except (ValueError, KeyError, TypeError) as e:
         log("[recv corrupt packet]")
