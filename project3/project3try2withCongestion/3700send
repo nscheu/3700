@@ -146,6 +146,8 @@ def send_eof():
     """
     global SEQUENCE
 
+    log("SENDING EOF")
+
     sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE, "ack": False}), dest)
     sys.exit(0)
 
