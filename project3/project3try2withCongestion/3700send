@@ -70,9 +70,9 @@ def update_rtt_new_ack(ack_in):
 
     new_rtt = (0.875 * OLD_RTT) + ((1-.875) * updated_rtt_avg)
 
-    if new_rtt > OLD_RTT:
-        SEND_BUFFER.size = (SEND_BUFFER.size / 2) + 1
-    elif new_rtt < OLD_RTT:
+    #if new_rtt > OLD_RTT:
+    #SEND_BUFFER.size = (SEND_BUFFER.size / 2) + 1
+    if new_rtt <= OLD_RTT:
         SEND_BUFFER.size += 1
 
     OLD_RTT = new_rtt
@@ -121,8 +121,8 @@ def resend_timedout_packets():
             send_message(json.dumps(packet))
             timed_out = True
 
-    #if timed_out:
-    #    SEND_BUFFER.size = (SEND_BUFFER.size / 2) + 1
+    if timed_out:
+        SEND_BUFFER.size = int(round(SEND_BUFFER.size * 0.7) + 1)
 
 
 def send_message(msg):
