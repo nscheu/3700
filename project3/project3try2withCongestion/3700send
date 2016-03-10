@@ -69,6 +69,12 @@ def update_rtt_new_ack(ack_in):
     updated_rtt_avg = sum(RTT_ARRAY) / len(RTT_ARRAY)
 
     new_rtt = (0.875 * OLD_RTT) + ((1-.875) * updated_rtt_avg)
+
+    if new_rtt > OLD_RTT:
+        SEND_BUFFER.size = (SEND_BUFFER.size / 2) + 1
+    elif new_rtt < OLD_RTT:
+        SEND_BUFFER.size += 1
+
     OLD_RTT = new_rtt
     RTO = 2 * new_rtt
     log("RTO = " + str(RTO))
@@ -91,7 +97,7 @@ def loop_through_ack_buffer():
         if top_ack['ack'] == sequence:
             ACK_BUFFER.remove_top()
             SEND_BUFFER.remove_top()
-            SEND_BUFFER.size += 1
+            #SEND_BUFFER.size += 1
 
         else:
             break
@@ -115,8 +121,8 @@ def resend_timedout_packets():
             send_message(json.dumps(packet))
             timed_out = True
 
-    if timed_out:
-        SEND_BUFFER.size = (SEND_BUFFER.size / 2) + 1
+    #if timed_out:
+    #    SEND_BUFFER.size = (SEND_BUFFER.size / 2) + 1
 
 
 def send_message(msg):
@@ -193,7 +199,7 @@ def try_to_read_ack(ack_in):
             if decoded['ack'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
                 SEND_BUFFER.remove_top()
                 loop_through_ack_buffer()
-                SEND_BUFFER.size += 1
+                #SEND_BUFFER.size += 1
 
         else:
             ACK_BUFFER.insert_ack_packet(decoded)
