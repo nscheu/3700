@@ -72,8 +72,9 @@ def update_rtt_new_ack(ack_in):
 
     #if new_rtt > OLD_RTT:
     #SEND_BUFFER.size = (SEND_BUFFER.size / 2) + 1
-    if new_rtt <= OLD_RTT:
-        SEND_BUFFER.size += 1
+    #TODO: COMMENTED OUT ------------------------------------
+    #if new_rtt <= OLD_RTT:
+    #    SEND_BUFFER.size += 1
 
     OLD_RTT = new_rtt
     RTO = 2 * new_rtt
@@ -125,8 +126,9 @@ def resend_timedout_packets():
             timed_out = True
         iterator += 1
 
-    if timed_out:
-        SEND_BUFFER.size = int(round(SEND_BUFFER.size * 1.5) + 1)
+    #TODO: COMMENTED OUT ------------------------------------
+    #if timed_out:
+    #SEND_BUFFER.size = int(round(SEND_BUFFER.size * 0.7) + 1)
 
 
 def send_message(msg):
@@ -203,8 +205,8 @@ def try_to_read_ack(ack_in):
 
         update_rtt_new_ack(decoded)
 
-        # TODO: NEWWW
-        SEND_BUFFER.size += 1
+        #TODO: NEW COMMENTED OUT ------------------------------------
+        #SEND_BUFFER.size += 1
 
 
         if SEND_BUFFER.get_top():
