@@ -230,7 +230,7 @@ def receive_ack():
         try_to_read_ack(data)
     else:
         log("[error] timeout")
-        sys.exit(-1)
+        #sys.exit(-1)
 
 
 # Send first packet
