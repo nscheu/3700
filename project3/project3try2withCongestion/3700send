@@ -15,7 +15,7 @@ from create_log_file import add_to_log
 
 MSG_SIZE = 1500
 DATA_SIZE = 1000
-TIMEOUT = 100
+TIMEOUT = 30
 SEQUENCE = 0
 SEND_BUFFER = Buffer()
 SEND_BUFFER.size = 1
@@ -114,14 +114,16 @@ def resend_timedout_packets():
 
     timed_out = False
 
-    for i in range(0, SEND_BUFFER.size):
-        packet = SEND_BUFFER.packets[i]
-        #for packet in SEND_BUFFER.packets:
+    iterator = 0
+    for packet in SEND_BUFFER.packets:
+        if iterator >= SEND_BUFFER.size:
+            break
         message_send_time = packet['send_time']
         if float(time.time() - message_send_time) > RTO:
             packet['send_time'] = float(time.time())
             send_message(json.dumps(packet))
             timed_out = True
+        iterator += 1
 
     if timed_out:
         SEND_BUFFER.size = int(round(SEND_BUFFER.size * 0.7) + 1)
