@@ -114,7 +114,9 @@ def resend_timedout_packets():
 
     timed_out = False
 
-    for packet in SEND_BUFFER.packets:
+    for i in range(0, SEND_BUFFER.size):
+        packet = SEND_BUFFER.packets[i]
+        #for packet in SEND_BUFFER.packets:
         message_send_time = packet['send_time']
         if float(time.time() - message_send_time) > RTO:
             packet['send_time'] = float(time.time())
@@ -207,8 +209,8 @@ def try_to_read_ack(ack_in):
         else:
             ACK_BUFFER.insert_ack_packet(decoded)
 
-    except (ValueError, KeyError, TypeError) as e:
-        log("[recv corrupt packet]: " + str(ack_in) + " top = " + str(SEND_BUFFER.get_top()) + " " + str(e))
+    except (ValueError, KeyError, TypeError):
+        log("[recv corrupt packet]")
 
 
 def receive_ack():
@@ -226,7 +228,7 @@ def receive_ack():
         try_to_read_ack(data)
     else:
         log("[error] timeout")
-        #sys.exit(-1)
+        sys.exit(-1)
 
 
 # Send first packet
@@ -248,12 +250,12 @@ while True:
 
     loop_through_ack_buffer()
 
-    try:
-        receive_ack()
+    #try:
+    receive_ack()
 
-    except socket.timeout:
-        log("SOCKET TIMEOUT SENDER")
-        continue
+    #except socket.timeout:
+    #    log("SOCKET TIMEOUT SENDER")
+    #    continue
 
 
 #send_eof()
