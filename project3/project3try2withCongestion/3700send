@@ -115,8 +115,8 @@ def resend_timedout_packets():
             send_message(json.dumps(packet))
             timed_out = True
 
-    #if timed_out:
-    SEND_BUFFER.size = (SEND_BUFFER.size / 2) + 1
+    if timed_out:
+        SEND_BUFFER.size = (SEND_BUFFER.size / 2) + 1
 
 
 def send_message(msg):
