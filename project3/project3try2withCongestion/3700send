@@ -193,6 +193,8 @@ def try_to_read_ack(ack_in):
     try:
         decoded = json.loads(ack_in)
 
+        log("Received ACK : " + decoded['ack'])
+
         update_rtt_new_ack(decoded)
 
         if SEND_BUFFER.get_top():
