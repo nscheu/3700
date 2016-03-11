@@ -76,8 +76,8 @@ def update_rtt_new_ack(ack_in):
     #if new_rtt > OLD_RTT:
     #SEND_BUFFER.size = (SEND_BUFFER.size / 2) + 1
     #TODO: COMMENTED OUT ------------------------------------
-    #if new_rtt <= OLD_RTT:
-    #    SEND_BUFFER.size += 1
+    if new_rtt <= OLD_RTT:
+        SEND_BUFFER.size += 1
 
     OLD_RTT = new_rtt
     RTO = 2 * new_rtt
@@ -137,9 +137,9 @@ def resend_timedout_packets():
         iterator += 1
 
     #TODO: COMMENTED OUT ------------------------------------
-    #if timed_out:
-    #SEND_BUFFER.size -= 1
-    #SEND_BUFFER.size = int(round(SEND_BUFFER.size * 0.7) + 1)
+    if timed_out:
+        SEND_BUFFER.size -= 1
+        SEND_BUFFER.size = int(round(SEND_BUFFER.size * 0.7))
     if SEND_BUFFER.size <= 0:
         SEND_BUFFER.size = 1
 
