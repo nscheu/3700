@@ -291,12 +291,11 @@ while True:
 
     loop_through_ack_buffer()
 
-    #try:
-    receive_ack()
+    try:
+        receive_ack()
 
-    #except socket.timeout:
-    #    log("SOCKET TIMEOUT SENDER")
-    #    continue
+    except socket.timeout:
+        add_to_log("SOCKET TIMEOUT SENDER")
 
 
 #send_eof()
