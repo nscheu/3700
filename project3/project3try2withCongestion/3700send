@@ -19,11 +19,10 @@ SEQUENCE = 0
 SEND_BUFFER = Buffer()
 SEND_BUFFER.size = 1
 ACK_BUFFER = Buffer()
-RTO = 0.550 #500 passes all basic tests, 30 passes all performance (fails large basic)
+RTO = 0.550
 OLD_RTT = 0
 RTT_ARRAY_INCREMENT = 0
 TIMEOUT = RTO
-#TIMEOUT = 0.1
 
 RTT_ARRAY = []
 
@@ -59,8 +58,6 @@ def update_rtt_new_ack(ack_in):
     global RTO
     global OLD_RTT
 
-    add_to_log("(SEND) UPDATE RTT NEW ACK: " + str(ack_in['ack']))
-
     ack_rtt = time.time() - float(ack_in['pack_send_time'])
 
     if RTT_ARRAY_INCREMENT >= 10:
@@ -72,12 +69,6 @@ def update_rtt_new_ack(ack_in):
     updated_rtt_avg = sum(RTT_ARRAY) / len(RTT_ARRAY)
 
     new_rtt = (0.875 * OLD_RTT) + ((1-.875) * updated_rtt_avg)
-
-    #if new_rtt > OLD_RTT:
-    #SEND_BUFFER.size = (SEND_BUFFER.size / 2) + 1
-    #TODO: COMMENTED OUT ------------------------------------
-    if new_rtt <= OLD_RTT:
-        SEND_BUFFER.size += 1
 
     OLD_RTT = new_rtt
     RTO = 2 * new_rtt
@@ -93,8 +84,6 @@ def loop_through_ack_buffer():
     """
     global ACK_BUFFER
     global SEND_BUFFER
-
-    add_to_log("(SEND) LOOP THROUGH ACK BUFFER")
 
     top_ack = ACK_BUFFER.get_top()
 
@@ -117,9 +106,6 @@ def resend_timedout_packets():
     global SEND_BUFFER
     global RTO
 
-    add_to_log("(SEND) RESEND TIMEDOUT PACKETS")
-
-
     timed_out = False
 
     iterator = 0
@@ -131,13 +117,9 @@ def resend_timedout_packets():
             packet['send_time'] = float(time.time())
             send_message(json.dumps(packet))
             timed_out = True
-            #TODO: NEWWW
-            #SEND_BUFFER.size -= 1
         iterator += 1
 
-    #TODO: COMMENTED OUT ------------------------------------
     if timed_out:
-        #SEND_BUFFER.size -= 1
         SEND_BUFFER.size = int(round(SEND_BUFFER.size * 0.7))
     if SEND_BUFFER.size <= 0:
         SEND_BUFFER.size = 1
@@ -150,9 +132,6 @@ def send_message(msg):
     :param msg: the String (data) to send over the connection
     :return: void - sends over a socket connection
     """
-    add_to_log("(SEND) SEND MESSAGE - SEQUENCE= " + str(json.loads(msg)['sequence']))
-
-
     if sock.sendto(msg, dest) < len(msg):
         log("[error] unable to fully send packet")
     else:
@@ -167,12 +146,10 @@ def send_eof():
     """
     global SEQUENCE
 
-    add_to_log("(SEND) SEND EOF")
-
-
     log("SENDING EOF")
 
-    sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE, "ack": False}), dest)
+    sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
+                            "ack": False, "send_time": float(time.time())}), dest)
     sys.exit(0)
 
 
@@ -186,8 +163,6 @@ def send_next_packet():
     """
     global SEQUENCE
     global SEND_BUFFER
-
-    add_to_log("(SEND) SEND NEXT PACKET")
 
     new_data = sys.stdin.read(DATA_SIZE)
 
@@ -218,8 +193,6 @@ def try_to_read_ack(ack_in):
     global SEND_BUFFER
     global ACK_BUFFER
 
-    add_to_log("(SEND) TRY TO READ IN ACK")
-
     try:
         decoded = json.loads(ack_in)
 
@@ -227,8 +200,7 @@ def try_to_read_ack(ack_in):
 
         update_rtt_new_ack(decoded)
 
-        #TODO: NEW COMMENTED OUT ------------------------------------
-        SEND_BUFFER.size += 1
+        SEND_BUFFER.size += 10
 
         if SEND_BUFFER.get_top():
             if decoded['ack'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
@@ -250,21 +222,13 @@ def receive_ack():
     """
     global MSG_SIZE
 
-    add_to_log("(SEND) RECEIVE ACK")
-    #sock.settimeout(RTO)
-
     result = sock.recvfrom(MSG_SIZE)
 
     if result:
-        add_to_log("(SEND) RECEIVE ACK - result exists")
-
         (data, addr) = result
         try_to_read_ack(data)
     else:
         log("[error] timeout")
-        add_to_log("(SEND) RECEIVE ACK - timed out")
-
-        #sys.exit(-1)
 
 
 # Send first packet
@@ -279,16 +243,12 @@ then attempting to receive any ACKs from the receiver. Closing when
 EOF is reached.
 """
 while True:
-    add_to_log("(SEND) MAIN LOOP")
-
     sock.settimeout(RTO / 4)
 
     resend_timedout_packets()
 
     if SEND_BUFFER.free_slots():
         send_next_packet()
-    else:
-        add_to_log("(SEND) SEND BUFFER FULL: " + str(SEND_BUFFER.size))
 
     loop_through_ack_buffer()
 
@@ -296,7 +256,7 @@ while True:
         receive_ack()
 
     except socket.timeout:
-        add_to_log("SOCKET TIMEOUT SENDER")
+        log("socket timeout")
 
 
 #send_eof()
