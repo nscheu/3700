@@ -1,0 +1,12 @@
+Austin Colcord and Nick Scheuring
+
+This is the project for creating a Reliable Transport Protocol.
+
+High-Level Approach:
+This program takes in messages from stdin into a ‘sender’ (3700send), and reliably transports data through the UDP protocol with a custom reliable transport protocol added to the packets. Through this, each data packet has a sequence number associated with it in order to communicate the correct order of the data in the packets. For each packet that is sent over, the ‘receiver’ (3700recv) sends an ACK back to the sender confirming that the data was received, and writes the data to stdout. For any dropped messages, time stamps are in place that calculate the average round trip time for ACKs, which is used to re-send dropped packets from the perspective of the sender.
+
+Issues:
+Most issues encountered had to do with the correct setup of socket connections, socket timeouts, etc. Other issues encountered had to do with figuring out when to re-send data packets (using the round trip time). Another issue was figuring out how to correctly modify the size of the sending buffer (aka ‘congestion window’). 
+
+Testing:
+The testing suite that was provided for the assignment was used heavily to gauge progress. Also, a custom logging utility was created for debugging purposes.
