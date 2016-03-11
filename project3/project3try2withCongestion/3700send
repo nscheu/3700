@@ -251,7 +251,7 @@ def receive_ack():
     global MSG_SIZE
 
     add_to_log("(SEND) RECEIVE ACK")
-
+    sock.settimeout(RTO)
 
     result = sock.recvfrom(MSG_SIZE)
 
