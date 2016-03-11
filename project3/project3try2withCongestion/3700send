@@ -150,7 +150,7 @@ def send_message(msg):
     :param msg: the String (data) to send over the connection
     :return: void - sends over a socket connection
     """
-    add_to_log("(SEND) SEND MESSAGE")
+    add_to_log("(SEND) SEND MESSAGE - SEQUENCE= " + str(json.loads(msg)['sequence']))
 
 
     if sock.sendto(msg, dest) < len(msg):
