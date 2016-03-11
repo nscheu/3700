@@ -200,7 +200,7 @@ def try_to_read_ack(ack_in):
 
         update_rtt_new_ack(decoded)
 
-        SEND_BUFFER.size += 10
+        SEND_BUFFER.size += 1
 
         if SEND_BUFFER.get_top():
             if decoded['ack'] == SEND_BUFFER.get_top()['sequence'] + len(SEND_BUFFER.get_top()['data']):
@@ -257,6 +257,3 @@ while True:
 
     except socket.timeout:
         log("socket timeout")
-
-
-#send_eof()
