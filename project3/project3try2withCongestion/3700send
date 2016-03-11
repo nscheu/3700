@@ -260,6 +260,8 @@ def receive_ack():
         try_to_read_ack(data)
     else:
         log("[error] timeout")
+        add_to_log("(SEND) RECEIVE ACK - timed out")
+
         #sys.exit(-1)
 
 
