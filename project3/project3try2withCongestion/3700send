@@ -14,7 +14,7 @@ from buffer import Buffer
 from create_log_file import add_to_log
 
 MSG_SIZE = 1500
-DATA_SIZE = 1000
+DATA_SIZE = 1250
 SEQUENCE = 0
 SEND_BUFFER = Buffer()
 SEND_BUFFER.size = 1
