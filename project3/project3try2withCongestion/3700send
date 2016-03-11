@@ -58,6 +58,8 @@ def update_rtt_new_ack(ack_in):
     global RTO
     global OLD_RTT
 
+    add_to_log("(SEND) UPDATE RTT NEW ACK: " + str(ack_in['ack']))
+
     ack_rtt = time.time() - float(ack_in['pack_send_time'])
 
     if RTT_ARRAY_INCREMENT >= 10:
@@ -91,6 +93,8 @@ def loop_through_ack_buffer():
     global ACK_BUFFER
     global SEND_BUFFER
 
+    add_to_log("(SEND) LOOP THROUGH ACK BUFFER")
+
     top_ack = ACK_BUFFER.get_top()
 
     while top_ack:
@@ -112,6 +116,9 @@ def resend_timedout_packets():
     """
     global SEND_BUFFER
     global RTO
+
+    add_to_log("(SEND) RESEND TIMEDOUT PACKETS")
+
 
     timed_out = False
 
@@ -143,6 +150,9 @@ def send_message(msg):
     :param msg: the String (data) to send over the connection
     :return: void - sends over a socket connection
     """
+    add_to_log("(SEND) SEND MESSAGE")
+
+
     if sock.sendto(msg, dest) < len(msg):
         log("[error] unable to fully send packet")
     else:
@@ -156,6 +166,9 @@ def send_eof():
     :return: void - sys.exit(0)
     """
     global SEQUENCE
+
+    add_to_log("(SEND) SEND EOF")
+
 
     log("SENDING EOF")
 
@@ -173,6 +186,8 @@ def send_next_packet():
     """
     global SEQUENCE
     global SEND_BUFFER
+
+    add_to_log("(SEND) SEND NEXT PACKET")
 
     new_data = sys.stdin.read(DATA_SIZE)
 
@@ -202,6 +217,8 @@ def try_to_read_ack(ack_in):
     """
     global SEND_BUFFER
     global ACK_BUFFER
+
+    add_to_log("(SEND) TRY TO READ IN ACK")
 
     try:
         decoded = json.loads(ack_in)
@@ -233,6 +250,9 @@ def receive_ack():
     """
     global MSG_SIZE
 
+    add_to_log("(SEND) RECEIVE ACK")
+
+
     result = sock.recvfrom(MSG_SIZE)
 
     if result:
@@ -255,6 +275,9 @@ then attempting to receive any ACKs from the receiver. Closing when
 EOF is reached.
 """
 while True:
+    add_to_log("(SEND) MAIN LOOP")
+
+
     resend_timedout_packets()
 
     if SEND_BUFFER.free_slots():
