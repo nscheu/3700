@@ -21,7 +21,7 @@ def log(string):
     sys.stderr.write(datetime.datetime.now().strftime("%H:%M:%S.%f") + " " + string + "\n")
 
 MSG_SIZE = 1500
-TIMEOUT = 40
+TIMEOUT = 100
 RECV_BUFFER = Buffer()
 SEQUENCE = 0
 
