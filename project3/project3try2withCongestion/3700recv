@@ -170,10 +170,14 @@ while True:
     result = sock.recvfrom(MSG_SIZE)
 
     if result:
+        add_to_log("(RECV) MAIN LOOP - RESULT EXISTS")
+
         (data, addr) = result
         try_to_read_packet(data)
 
 
     else:
         log("[error] timeout")
+        add_to_log("(RECV) MAIN LOOP - TIMED OUT")
+
         sys.exit(-1)
