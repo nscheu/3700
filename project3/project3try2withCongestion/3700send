@@ -22,8 +22,8 @@ ACK_BUFFER = Buffer()
 RTO = 0.550 #500 passes all basic tests, 30 passes all performance (fails large basic)
 OLD_RTT = 0
 RTT_ARRAY_INCREMENT = 0
-#TIMEOUT = RTO
-TIMEOUT = 0.1
+TIMEOUT = RTO
+#TIMEOUT = 0.1
 
 RTT_ARRAY = []
 
@@ -282,7 +282,7 @@ EOF is reached.
 while True:
     add_to_log("(SEND) MAIN LOOP")
 
-    #sock.settimeout(RTO)
+    sock.settimeout(RTO)
 
 
     resend_timedout_packets()
