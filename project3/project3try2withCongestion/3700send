@@ -76,8 +76,8 @@ def update_rtt_new_ack(ack_in):
     #if new_rtt > OLD_RTT:
     #SEND_BUFFER.size = (SEND_BUFFER.size / 2) + 1
     #TODO: COMMENTED OUT ------------------------------------
-    if new_rtt <= OLD_RTT:
-        SEND_BUFFER.size += 1
+    #if new_rtt <= OLD_RTT:
+    #    SEND_BUFFER.size += 1
 
     OLD_RTT = new_rtt
     RTO = 2 * new_rtt
@@ -103,7 +103,6 @@ def loop_through_ack_buffer():
         if top_ack['ack'] == sequence:
             ACK_BUFFER.remove_top()
             SEND_BUFFER.remove_top()
-            #SEND_BUFFER.size += 1
 
         else:
             break
@@ -283,7 +282,6 @@ while True:
     add_to_log("(SEND) MAIN LOOP")
 
     sock.settimeout(RTO / 4)
-
 
     resend_timedout_packets()
 
