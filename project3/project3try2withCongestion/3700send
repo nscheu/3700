@@ -23,7 +23,7 @@ RTO = 0.550 #500 passes all basic tests, 30 passes all performance (fails large 
 OLD_RTT = 0
 RTT_ARRAY_INCREMENT = 0
 #TIMEOUT = RTO
-TIMEOUT = 0.3
+TIMEOUT = 0.1
 
 RTT_ARRAY = []
 
