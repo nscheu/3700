@@ -133,8 +133,8 @@ def send_message(msg):
     :param msg: the String (data) to send over the connection
     :return: void - sends over a socket connection
     """
-    message = struct.Struct(msg)
-    if sock.sendto(message, dest) < message.calcsize():
+    message = struct.pack("I", len(msg)) + msg
+    if sock.sendto(message, dest) < len(message):
         #if sock.sendto(msg, dest) < len(msg):
         log("[error] unable to fully send packet")
     else:
@@ -151,8 +151,13 @@ def send_eof():
 
     log("SENDING EOF")
 
-    sock.sendto(struct.Struct(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
-                                          "ack": False, "send_time": float(time.time())})), dest)
+    message = json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
+                         "ack": False, "send_time": float(time.time())})
+
+    msg = struct.pack("I", len(message)) + message
+
+    sock.sendto(msg, dest)
+    
     sys.exit(0)
 
 
@@ -228,7 +233,8 @@ def receive_ack():
     result = sock.recvfrom(MSG_SIZE)
 
     if result:
-        result = result.unpack()
+        size = struct.calcsize("I")
+        (x, result) = struct.unpack("I", result[:size]), result[size:]
         (data, addr) = result
         try_to_read_ack(data)
     else:
