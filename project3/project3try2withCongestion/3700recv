@@ -10,6 +10,7 @@ import datetime
 import json
 from create_log_file import add_to_log
 from buffer import Buffer
+import struct
 
 
 def log(string):
@@ -49,7 +50,10 @@ def send_ack(data_packet):
     msg = json.dumps({"ack": data_packet['sequence'] + len(data_packet['data']), "pack_send_time": data_packet['send_time']})
     log("ABOUT TO SEND " + msg)
 
-    if sock.sendto(msg, addr) < len(msg):
+    message = struct.Struct(msg)
+
+    #if sock.sendto(msg, addr) < len(msg):
+    if sock.sendto(message, addr) < message.calcsize():
         log("[error] unable to fully send packet")
 
     else:
@@ -157,6 +161,7 @@ while True:
     result = sock.recvfrom(MSG_SIZE)
 
     if result:
+        result = result.unpack()
         (data, addr) = result
         try_to_read_packet(data)
 

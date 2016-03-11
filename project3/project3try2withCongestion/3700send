@@ -12,6 +12,7 @@ import time
 import json
 from buffer import Buffer
 from create_log_file import add_to_log
+import struct
 
 MSG_SIZE = 1500
 DATA_SIZE = 1000
@@ -132,7 +133,9 @@ def send_message(msg):
     :param msg: the String (data) to send over the connection
     :return: void - sends over a socket connection
     """
-    if sock.sendto(msg, dest) < len(msg):
+    message = struct.Struct(msg)
+    if sock.sendto(message, dest) < message.calcsize():
+        #if sock.sendto(msg, dest) < len(msg):
         log("[error] unable to fully send packet")
     else:
         msg = json.loads(msg)
@@ -148,8 +151,8 @@ def send_eof():
 
     log("SENDING EOF")
 
-    sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
-                            "ack": False, "send_time": float(time.time())}), dest)
+    sock.sendto(struct.Struct(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
+                                          "ack": False, "send_time": float(time.time())})), dest)
     sys.exit(0)
 
 
@@ -225,6 +228,7 @@ def receive_ack():
     result = sock.recvfrom(MSG_SIZE)
 
     if result:
+        result = result.unpack()
         (data, addr) = result
         try_to_read_ack(data)
     else:
