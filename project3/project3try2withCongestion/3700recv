@@ -173,6 +173,7 @@ while True:
         (data, addr) = result
         try_to_read_packet(data)
 
+
     else:
         log("[error] timeout")
         sys.exit(-1)

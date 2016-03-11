@@ -286,6 +286,8 @@ while True:
 
     if SEND_BUFFER.free_slots():
         send_next_packet()
+    else:
+        add_to_log("(SEND) SEND BUFFER FULL: " + str(SEND_BUFFER.size))
 
     loop_through_ack_buffer()
 
