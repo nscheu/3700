@@ -47,7 +47,6 @@ def send_ack(data_packet):
     :return: void - sends packet across the socket
     """
     msg = json.dumps({"ack": data_packet['sequence'] + len(data_packet['data']), "pack_send_time": data_packet['send_time']})
-    log("ABOUT TO SEND " + msg)
 
     if sock.sendto(msg, addr) < len(msg):
         log("[error] unable to fully send packet")
@@ -141,6 +140,13 @@ def try_to_read_packet(socket_message):
         else:
             if decoded['sequence'] > SEQUENCE:
                 RECV_BUFFER.insert_packet(decoded)
+
+                log("[recv data] " + str(decoded['sequence']) + " (" +
+                    str(len(decoded['data'])) + ") ACCEPTED (out-of-order)")
+            else:
+                log("[recv data] " + str(decoded['sequence']) + " (" +
+                    str(len(decoded['data'])) + ") IGNORED")
+
         send_ack(decoded)
 
     except (ValueError, KeyError, TypeError) as e:

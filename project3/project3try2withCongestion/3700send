@@ -146,10 +146,12 @@ def send_eof():
     """
     global SEQUENCE
 
-    log("SENDING EOF")
+    log("[send eof]")
 
     sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
                             "ack": False, "send_time": float(time.time())}), dest)
+    
+    log("[completed]")
     sys.exit(0)
 
 
@@ -196,7 +198,7 @@ def try_to_read_ack(ack_in):
     try:
         decoded = json.loads(ack_in)
 
-        log("Received ACK : " + str(decoded['ack']))
+        log("[recv ack] " + str(decoded['ack']))
 
         update_rtt_new_ack(decoded)
 
