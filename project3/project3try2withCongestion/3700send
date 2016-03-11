@@ -256,6 +256,8 @@ def receive_ack():
     result = sock.recvfrom(MSG_SIZE)
 
     if result:
+        add_to_log("(SEND) RECEIVE ACK - result exists")
+
         (data, addr) = result
         try_to_read_ack(data)
     else:
