@@ -22,7 +22,6 @@ ACK_BUFFER = Buffer()
 RTO = 0.550
 OLD_RTT = 0
 RTT_ARRAY_INCREMENT = 0
-#TIMEOUT = RTO
 TIMEOUT = RTO
 
 RTT_ARRAY = []
@@ -121,7 +120,7 @@ def resend_timedout_packets():
         iterator += 1
 
     if timed_out:
-        SEND_BUFFER.size = int(round(SEND_BUFFER.size * 0.7))
+        SEND_BUFFER.size = int(round(SEND_BUFFER.size * 0.5))
     if SEND_BUFFER.size <= 0:
         SEND_BUFFER.size = 1
 
