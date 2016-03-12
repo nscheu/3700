@@ -121,7 +121,7 @@ def resend_timedout_packets():
 
     if timed_out:
         SEND_BUFFER.size = int(SEND_BUFFER.size * 0.7)
-    if SEND_BUFFER.size <= 0:
+    if SEND_BUFFER.size < 1:
         SEND_BUFFER.size = 1
 
 
