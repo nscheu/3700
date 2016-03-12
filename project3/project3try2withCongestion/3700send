@@ -22,7 +22,8 @@ ACK_BUFFER = Buffer()
 RTO = 0.550
 OLD_RTT = 0
 RTT_ARRAY_INCREMENT = 0
-TIMEOUT = RTO
+#TIMEOUT = RTO
+TIMEOUT = 0.05
 
 RTT_ARRAY = []
 
@@ -150,7 +151,7 @@ def send_eof():
 
     sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
                             "ack": False, "send_time": float(time.time())}), dest)
-    
+
     log("[completed]")
     sys.exit(0)
 
@@ -245,7 +246,7 @@ then attempting to receive any ACKs from the receiver. Closing when
 EOF is reached.
 """
 while True:
-    sock.settimeout(RTO / 4)
+    #sock.settimeout(RTO / 4)
 
     resend_timedout_packets()
 
