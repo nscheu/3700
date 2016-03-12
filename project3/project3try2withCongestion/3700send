@@ -23,7 +23,7 @@ RTO = 0.550
 OLD_RTT = 0
 RTT_ARRAY_INCREMENT = 0
 #TIMEOUT = RTO
-TIMEOUT = 0.05
+TIMEOUT = RTO
 
 RTT_ARRAY = []
 
@@ -246,7 +246,7 @@ then attempting to receive any ACKs from the receiver. Closing when
 EOF is reached.
 """
 while True:
-    sock.settimeout(RTO / 2.1)
+    sock.settimeout(RTO / 4)
 
     resend_timedout_packets()
 
