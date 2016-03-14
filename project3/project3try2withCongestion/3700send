@@ -269,10 +269,11 @@ while True:
     if SEND_BUFFER.free_slots():
         send_next_packet()
 
-    loop_through_ack_buffer()
-
     try:
         receive_ack()
 
     except socket.timeout:
         log("socket timeout")
+
+    loop_through_ack_buffer()
+
