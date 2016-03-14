@@ -258,7 +258,7 @@ def receive_ack():
         hdr = data[0: 13]
         packet = struct.unpack("!Q?f", hdr)
 
-        msg = {'ack': packet[0], 'eof': packet[1], 'pack_send_time': packet[2]}
+        msg = {'ack': packet[0], 'eof': packet[1], 'pack_send_time': float(packet[2])}
 
         try_to_read_ack(msg)
     else:
