@@ -133,8 +133,9 @@ def send_message(msg):
     :param msg: the String (data) to send over the connection
     :return: void - sends over a socket connection
     """
+    global SEQUENCE
 
-    hdr = struct.pack("!B?f", SEQUENCE, False, float(time.time()))
+    hdr = struct.pack("!B?f", SEQUENCE, 0, float(time.time()))
 
     sock.send(hdr + msg['data'])
 
@@ -155,7 +156,7 @@ def send_eof():
 
     log("[send eof]")
 
-    hdr = struct.pack("!B?f", SEQUENCE, True, float(time.time()))
+    hdr = struct.pack("!B?f", SEQUENCE, 1, float(time.time()))
 
     sock.sendto(hdr, dest)
 
