@@ -77,7 +77,7 @@ def update_rtt_new_ack(ack_in):
     new_rtt = (0.875 * OLD_RTT) + ((1-.875) * updated_rtt_avg)
 
     OLD_RTT = new_rtt
-    RTO = 2 * new_rtt
+    RTO = abs(2 * new_rtt)
     log("RTO = " + str(RTO))
 
 
