@@ -11,6 +11,7 @@ import json
 from create_log_file import add_to_log
 from buffer import Buffer
 import struct
+import time
 
 
 def log(string):
@@ -47,14 +48,21 @@ def send_ack(data_packet):
     :param data_packet: the data packet to create the acknowledgement for
     :return: void - sends packet across the socket
     """
-    msg = json.dumps({"ack": data_packet['sequence'] + len(data_packet['data']), "pack_send_time": data_packet['send_time']})
+    #msg = json.dumps({"ack": data_packet['sequence'] + len(data_packet['data']), "pack_send_time": data_packet['send_time']})
 
 
-    #s = bytes(msg)    # Or other appropriate encoding
-    #struct.pack("=I%ds" % (len(s),), len(s), s)
+    hdr = struct.pack("!B?f", data_packet['sequence'] + len(data_packet['data']), False, data_packet['send_time'])
 
-    #if sock.sendto(s, addr) < len(s):
-    if sock.sendto(msg, addr) < len(msg):
+    sock.send(hdr + data_packet['data'])
+
+    #if sock.sendto(msg, dest) < len(msg):
+    if sock.sendto(hdr + data_packet['data'], addr) < len(hdr + msg['data']):
+
+        #s = bytes(msg)    # Or other appropriate encoding
+        #struct.pack("=I%ds" % (len(s),), len(s), s)
+
+        #if sock.sendto(s, addr) < len(s):
+        #if sock.sendto(msg, addr) < len(msg):
         log("[error] unable to fully send packet")
 
     else:
@@ -126,7 +134,7 @@ def in_sequence_procedures(packet):
     loop_through_buffer()
 
 
-def try_to_read_packet(socket_message):
+def try_to_read_packet(decoded):
     """
     Takes in a message (assumed to be from the socket), and tries to parse
     the message into JSON and run the functions to get it's sequence number,
@@ -138,7 +146,7 @@ def try_to_read_packet(socket_message):
     global RECV_BUFFER
 
     try:
-        decoded = json.loads(socket_message)
+        #decoded = json.loads(socket_message)
 
         if decoded['sequence'] == SEQUENCE:
             in_sequence_procedures(decoded)
@@ -169,10 +177,16 @@ while True:
     result = sock.recvfrom(MSG_SIZE)
 
     if result:
-        #(i,), result = struct.unpack("I", result), result
-        #s, result = result[:i], result[i:]
         (data, addr) = result
-        try_to_read_packet(data)
+
+        #hdr = struct.pack("!B?f", SEQUENCE, False, float(time.time()))
+        hdr = data[0: 6]
+        data = data[6:]
+        packet = struct.unpack("!B?f", hdr)
+
+        msg = {'sequence': packet[0], 'eof': packet[1], 'send_time': packet[2], 'data': data}
+
+        try_to_read_packet(msg)
 
     else:
         log("[error] timeout")

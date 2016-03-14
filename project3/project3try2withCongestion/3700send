@@ -134,11 +134,12 @@ def send_message(msg):
     :return: void - sends over a socket connection
     """
 
-    #s = bytes(msg)    # Or other appropriate encoding
-    #struct.pack("=I%ds" % (len(s),), len(s), s)
+    hdr = struct.pack("!B?f", SEQUENCE, False, float(time.time()))
 
-    if sock.sendto(msg, dest) < len(msg):
-    #if sock.sendto(s, dest) < len(s):
+    sock.send(hdr + msg['data'])
+
+    #if sock.sendto(msg, dest) < len(msg):
+    if sock.sendto(hdr + msg['data'], dest) < len(hdr + msg['data']):
         log("[error] unable to fully send packet")
     else:
         msg = json.loads(msg)
@@ -154,17 +155,12 @@ def send_eof():
 
     log("[send eof]")
 
+    hdr = struct.pack("!B?f", SEQUENCE, True, float(time.time()))
 
-    #msg = json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
-    #                        "ack": False, "send_time": float(time.time())})
+    sock.sendto(hdr, dest)
 
-    #s = bytes(msg)    # Or other appropriate encoding
-    #struct.pack("=I%ds" % (len(s),), len(s), s)
-
-    #sock.sendto(s, dest)
-
-    sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
-                            "ack": False, "send_time": float(time.time())}), dest)
+    #sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
+    #                        "ack": False, "send_time": float(time.time())}), dest)
 
     log("[completed]")
     sys.exit(0)
@@ -211,7 +207,7 @@ def try_to_read_ack(ack_in):
     global ACK_BUFFER
 
     try:
-        decoded = json.loads(ack_in)
+        #decoded = json.loads(ack_in)
 
         log("[recv ack] " + str(decoded['ack']))
 
@@ -242,10 +238,18 @@ def receive_ack():
     result = sock.recvfrom(MSG_SIZE)
 
     if result:
+
+
         #(i,), result = struct.unpack("I", result), result
         #s, result = result[:i], result[i:]
         (data, addr) = result
-        try_to_read_ack(data)
+
+        hdr = data[0: 6]
+        packet = struct.unpack("!B?f", hdr)
+
+        msg = {'ack': True, 'sequence': packet[0], 'eof': packet[1], 'send_time': packet[2]}
+
+        try_to_read_ack(msg)
     else:
         log("[error] timeout")
 
