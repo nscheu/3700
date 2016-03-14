@@ -134,7 +134,7 @@ def send_message(msg):
     :return: void - sends over a socket connection
     """
 
-    s = bytes(msg, 'utf-8')    # Or other appropriate encoding
+    s = bytes(msg)    # Or other appropriate encoding
     struct.pack("I%ds" % (len(s),), len(s), s)
 
     #if sock.sendto(msg, dest) < len(msg):
@@ -157,7 +157,7 @@ def send_eof():
     msg = json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
                             "ack": False, "send_time": float(time.time())})
 
-    s = bytes(msg, 'utf-8')    # Or other appropriate encoding
+    s = bytes(msg)    # Or other appropriate encoding
     struct.pack("I%ds" % (len(s),), len(s), s)
 
     sock.sendto(s, dest)

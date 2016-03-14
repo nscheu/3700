@@ -50,7 +50,7 @@ def send_ack(data_packet):
     msg = json.dumps({"ack": data_packet['sequence'] + len(data_packet['data']), "pack_send_time": data_packet['send_time']})
 
 
-    s = bytes(msg, 'utf-8')    # Or other appropriate encoding
+    s = bytes(msg)    # Or other appropriate encoding
     struct.pack("I%ds" % (len(s),), len(s), s)
 
     #if sock.sendto(msg, dest) < len(msg):
