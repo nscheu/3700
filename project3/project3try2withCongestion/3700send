@@ -77,7 +77,7 @@ def update_rtt_new_ack(ack_in):
     new_rtt = (0.875 * OLD_RTT) + ((1-.875) * updated_rtt_avg)
 
     OLD_RTT = new_rtt
-    RTO = abs(2 * new_rtt)
+    RTO = 2 * new_rtt
     log("RTO = " + str(RTO))
 
 
@@ -253,10 +253,6 @@ def receive_ack():
     result = sock.recvfrom(MSG_SIZE)
 
     if result:
-
-
-        #(i,), result = struct.unpack("I", result), result
-        #s, result = result[:i], result[i:]
         (data, addr) = result
 
         hdr = data[0: 13]
