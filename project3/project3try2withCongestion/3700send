@@ -135,7 +135,7 @@ def send_message(msg):
     """
 
     s = bytes(msg)    # Or other appropriate encoding
-    struct.pack("I%ds" % (len(s),), len(s), s)
+    struct.pack("=I%ds" % (len(s),), len(s), s)
 
     #if sock.sendto(msg, dest) < len(msg):
     if sock.sendto(s, dest) < len(s):
@@ -158,7 +158,7 @@ def send_eof():
                             "ack": False, "send_time": float(time.time())})
 
     s = bytes(msg)    # Or other appropriate encoding
-    struct.pack("I%ds" % (len(s),), len(s), s)
+    struct.pack("=I%ds" % (len(s),), len(s), s)
 
     sock.sendto(s, dest)
 

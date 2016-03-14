@@ -51,7 +51,7 @@ def send_ack(data_packet):
 
 
     s = bytes(msg)    # Or other appropriate encoding
-    struct.pack("I%ds" % (len(s),), len(s), s)
+    struct.pack("=I%ds" % (len(s),), len(s), s)
 
     #if sock.sendto(msg, dest) < len(msg):
     if sock.sendto(s, addr) < len(s):
