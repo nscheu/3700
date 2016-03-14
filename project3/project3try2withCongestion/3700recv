@@ -53,10 +53,9 @@ def send_ack(data_packet):
 
     hdr = struct.pack("!Q?f", data_packet['sequence'] + len(data_packet['data']), False, data_packet['send_time'])
 
-    sock.send(hdr + data_packet['data'])
 
     #if sock.sendto(msg, dest) < len(msg):
-    if sock.sendto(hdr + data_packet['data'], addr) < len(hdr + msg['data']):
+    if sock.sendto(hdr, addr) < len(hdr):
 
         #s = bytes(msg)    # Or other appropriate encoding
         #struct.pack("=I%ds" % (len(s),), len(s), s)
@@ -181,10 +180,9 @@ while True:
 
         #hdr = struct.pack("!B?f", SEQUENCE, False, float(time.time()))
         hdr = data[0: 13]
-        data = data[13:]
+        data_stuff = data[13:]
         packet = struct.unpack("!Q?f", hdr)
-
-        msg = {'sequence': packet[0], 'eof': packet[1], 'send_time': packet[2], 'data': data}
+        msg = {'sequence': packet[0], 'eof': packet[1], 'send_time': packet[2], 'data': data_stuff}
 
         try_to_read_packet(msg)
 

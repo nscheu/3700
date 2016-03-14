@@ -15,7 +15,7 @@ from create_log_file import add_to_log
 import struct
 
 MSG_SIZE = 1500
-DATA_SIZE = 1250
+DATA_SIZE = 1248
 SEQUENCE = 0
 SEND_BUFFER = Buffer()
 SEND_BUFFER.size = 1
@@ -134,12 +134,10 @@ def send_message(msg):
     :return: void - sends over a socket connection
     """
     global SEQUENCE
+    msg = json.loads(msg)
 
     hdr = struct.pack("!Q?f", SEQUENCE, False, float(time.time()))
-    msg = json.loads(msg)
-    sock.send(hdr + msg['data'])
 
-    #if sock.sendto(msg, dest) < len(msg):
     if sock.sendto(hdr + msg['data'], dest) < len(hdr + msg['data']):
         log("[error] unable to fully send packet")
     else:
