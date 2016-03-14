@@ -277,7 +277,7 @@ then attempting to receive any ACKs from the receiver. Closing when
 EOF is reached.
 """
 while True:
-    sock.settimeout(0.01)
+    sock.settimeout(RTO / 4)
 
     resend_timedout_packets()
 
