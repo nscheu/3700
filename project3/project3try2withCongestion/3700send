@@ -240,7 +240,7 @@ def receive_ack():
 
     result = sock.recvfrom(MSG_SIZE)
 
-    if result:
+    if result and len(result) >= 4:
         (i,), result = struct.unpack("I", result[:4]), result[4:]
         s, result = result[:i], result[i:]
         (data, addr) = result
