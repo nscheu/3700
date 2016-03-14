@@ -141,7 +141,6 @@ def send_message(msg):
     if sock.sendto(hdr + msg['data'].encode('utf-8'), dest) < len(hdr + msg['data'].encode('utf-8')):
         log("[error] unable to fully send packet")
     else:
-        msg = json.loads(msg)
         log("[send data] " + str(msg['sequence']) + " (" + str(len(msg['data'])) + ")")
 
 
