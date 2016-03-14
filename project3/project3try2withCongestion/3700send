@@ -136,7 +136,7 @@ def send_message(msg):
     global SEQUENCE
 
     hdr = struct.pack("!Q?f", SEQUENCE, False, float(time.time()))
-
+    msg = json.loads(msg)
     sock.send(hdr + msg['data'])
 
     #if sock.sendto(msg, dest) < len(msg):
