@@ -135,7 +135,7 @@ def send_message(msg):
     """
     global SEQUENCE
 
-    hdr = struct.pack("!B?f", SEQUENCE, 0, float(time.time()))
+    hdr = struct.pack("!Q?f", SEQUENCE, False, float(time.time()))
 
     sock.send(hdr + msg['data'])
 
@@ -156,7 +156,7 @@ def send_eof():
 
     log("[send eof]")
 
-    hdr = struct.pack("!B?f", SEQUENCE, 1, float(time.time()))
+    hdr = struct.pack("!Q?f", SEQUENCE, True, float(time.time()))
 
     sock.sendto(hdr, dest)
 
@@ -209,6 +209,7 @@ def try_to_read_ack(ack_in):
 
     try:
         #decoded = json.loads(ack_in)
+        decoded = ack_in
 
         log("[recv ack] " + str(decoded['ack']))
 
@@ -245,8 +246,8 @@ def receive_ack():
         #s, result = result[:i], result[i:]
         (data, addr) = result
 
-        hdr = data[0: 6]
-        packet = struct.unpack("!B?f", hdr)
+        hdr = data[0: 13]
+        packet = struct.unpack("!Q?f", hdr)
 
         msg = {'ack': True, 'sequence': packet[0], 'eof': packet[1], 'send_time': packet[2]}
 

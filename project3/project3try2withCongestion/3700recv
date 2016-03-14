@@ -51,7 +51,7 @@ def send_ack(data_packet):
     #msg = json.dumps({"ack": data_packet['sequence'] + len(data_packet['data']), "pack_send_time": data_packet['send_time']})
 
 
-    hdr = struct.pack("!B?f", data_packet['sequence'] + len(data_packet['data']), 0, data_packet['send_time'])
+    hdr = struct.pack("!Q?f", data_packet['sequence'] + len(data_packet['data']), False, data_packet['send_time'])
 
     sock.send(hdr + data_packet['data'])
 
@@ -180,9 +180,9 @@ while True:
         (data, addr) = result
 
         #hdr = struct.pack("!B?f", SEQUENCE, False, float(time.time()))
-        hdr = data[0: 6]
-        data = data[6:]
-        packet = struct.unpack("!B?f", hdr)
+        hdr = data[0: 13]
+        data = data[13:]
+        packet = struct.unpack("!Q?f", hdr)
 
         msg = {'sequence': packet[0], 'eof': packet[1], 'send_time': packet[2], 'data': data}
 
