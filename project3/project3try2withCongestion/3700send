@@ -230,9 +230,9 @@ def try_to_read_ack(ack_in):
                 log("IN CHECK")
                 SEND_BUFFER.remove_top()
                 loop_through_ack_buffer()
-            else:
-                ACK_BUFFER.insert_ack_packet(decoded)
-                log("ADDED ACK TO BUFF")
+            #else:
+            #    ACK_BUFFER.insert_ack_packet(decoded)
+            #    log("ADDED ACK TO BUFF")
 
         else:
             ACK_BUFFER.insert_ack_packet(decoded)
