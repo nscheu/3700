@@ -138,7 +138,7 @@ def send_message(msg):
 
     hdr = struct.pack("!Q?f", SEQUENCE, False, float(time.time()))
 
-    if sock.sendto(hdr + msg['data'].encode('utf-8'), dest) < len(hdr + bin(msg['data'])):
+    if sock.sendto(hdr + msg['data'].encode('utf-8'), dest) < len(hdr + msg['data'].encode('utf-8')):
         log("[error] unable to fully send packet")
     else:
         msg = json.loads(msg)
