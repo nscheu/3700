@@ -134,11 +134,11 @@ def send_message(msg):
     :return: void - sends over a socket connection
     """
 
-    s = bytes(msg)    # Or other appropriate encoding
-    struct.pack("=I%ds" % (len(s),), len(s), s)
+    #s = bytes(msg)    # Or other appropriate encoding
+    #struct.pack("=I%ds" % (len(s),), len(s), s)
 
-    #if sock.sendto(msg, dest) < len(msg):
-    if sock.sendto(s, dest) < len(s):
+    if sock.sendto(msg, dest) < len(msg):
+    #if sock.sendto(s, dest) < len(s):
         log("[error] unable to fully send packet")
     else:
         msg = json.loads(msg)
@@ -154,16 +154,17 @@ def send_eof():
 
     log("[send eof]")
 
-    msg = json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
-                            "ack": False, "send_time": float(time.time())})
 
-    s = bytes(msg)    # Or other appropriate encoding
-    struct.pack("=I%ds" % (len(s),), len(s), s)
+    #msg = json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
+    #                        "ack": False, "send_time": float(time.time())})
 
-    sock.sendto(s, dest)
+    #s = bytes(msg)    # Or other appropriate encoding
+    #struct.pack("=I%ds" % (len(s),), len(s), s)
 
-    #sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
-    #                        "ack": False, "send_time": float(time.time())}), dest)
+    #sock.sendto(s, dest)
+
+    sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
+                            "ack": False, "send_time": float(time.time())}), dest)
 
     log("[completed]")
     sys.exit(0)
@@ -241,8 +242,8 @@ def receive_ack():
     result = sock.recvfrom(MSG_SIZE)
 
     if result:
-        (i,), result = struct.unpack("I", result), result
-        s, result = result[:i], result[i:]
+        #(i,), result = struct.unpack("I", result), result
+        #s, result = result[:i], result[i:]
         (data, addr) = result
         try_to_read_ack(data)
     else:
