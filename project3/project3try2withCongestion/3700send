@@ -121,6 +121,7 @@ def resend_timedout_packets():
         if iterator >= SEND_BUFFER.size:
             break
         message_send_time = packet['send_time']
+        print str("TIME DIFFEERENCE : " + str(time.time() - message_send_time))
         if float(time.time() - message_send_time) > RTO:
             log("TIMED OUT")
             packet['send_time'] = float(time.time())
