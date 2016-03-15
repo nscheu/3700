@@ -127,7 +127,7 @@ def resend_timedout_packets():
             send_message(json.dumps(packet))
             timed_out = True
         else:
-            log("NOT TIMED OUT YET: " + str(RTO) + " message = " + (message_send_time))
+            log("NOT TIMED OUT YET: " + str(RTO) + " message = " + str(message_send_time))
         iterator += 1
 
     if timed_out:
