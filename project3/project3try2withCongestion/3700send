@@ -61,7 +61,7 @@ def update_rtt_new_ack(ack_in):
 
     log("UPDATING RTT NEW ACK")
 
-    ack_rtt = time.time() - float(ack_in['pack_send_time'])
+    ack_rtt = time.time() - float(ack_in['send_time'])
 
     if RTT_ARRAY_INCREMENT >= 10:
         log("RTT ARR INCR > 10")
@@ -122,9 +122,12 @@ def resend_timedout_packets():
             break
         message_send_time = packet['send_time']
         if float(time.time() - message_send_time) > RTO:
+            log("TIMED OUT")
             packet['send_time'] = float(time.time())
             send_message(json.dumps(packet))
             timed_out = True
+        else:
+            log("NOT TIMED OUT YET: " + str(RTO) + " message = " + (message_send_time))
         iterator += 1
 
     if timed_out:
@@ -133,7 +136,7 @@ def resend_timedout_packets():
         SEND_BUFFER.size = 1
 
 
-def send_message(msg):
+def send_message(m):
     """
     Takes in a message (String) and sends it across the socket
     connection.
@@ -141,7 +144,7 @@ def send_message(msg):
     :return: void - sends over a socket connection
     """
     global SEQUENCE
-    msg = json.loads(msg)
+    msg = json.loads(m)
 
     hdr = struct.pack("!Q?f", msg['sequence'], False, float(time.time()))
 
@@ -166,6 +169,7 @@ def send_eof():
 
     #sock.sendto(json.dumps({"eof": True, "data": "", "sequence": SEQUENCE,
     #                        "ack": False, "send_time": float(time.time())}), dest)
+
 
     log("[completed]")
     sys.exit(0)
@@ -258,7 +262,7 @@ def receive_ack():
         hdr = data[0: 13]
         packet = struct.unpack("!Q?f", hdr)
 
-        msg = {'ack': packet[0], 'eof': packet[1], 'pack_send_time': float(packet[2])}
+        msg = {'ack': packet[0], 'eof': packet[1], 'send_time': float(packet[2])}
 
         try_to_read_ack(msg)
     else:
