@@ -182,7 +182,7 @@ while True:
         hdr = data[0: 13]
         data_stuff = data[13:].decode('utf-8')
         packet = struct.unpack("!Q?f", hdr)
-        msg = {'sequence': packet[0], 'eof': packet[1], 'send_time': float(packet[2]), 'data': data_stuff}
+        msg = {'sequence': packet[0], 'eof': packet[1], 'send_time': packet[2], 'data': data_stuff}
 
         try_to_read_packet(msg)
 
